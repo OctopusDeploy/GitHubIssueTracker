@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Extensibility.IssueTracker.GitHub": {
+      "commandName": "Executable",
+      "executablePath": "..\\..\\..\\..\\..\\..\\OctopusDeploy\\source\\Octopus.Server\\bin\\net452\\Octopus.Server.exe",
+      "commandLineArgs": "run --instance=master --customExtension=Octopus.Server.Extensibility.IssueTracker.GitHub.dll"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+using System;
+using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
+
+namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
+{
+    public class GitHubConfigurationMapping : IConfigurationDocumentMapper
+    {
+        public Type GetTypeToMap() => typeof(GitHubConfiguration);
+    }
+}

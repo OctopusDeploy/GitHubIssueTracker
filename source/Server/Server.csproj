@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
+    <RootNamespace>Octopus.Server.Extensibility.IssueTracker.GitHub</RootNamespace>
+    <AssemblyName>Octopus.Server.Extensibility.IssueTracker.GitHub</AssemblyName>
+    <Description>Implements the GitHub issue tracker.</Description>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Authors>Octopus Deploy</Authors>
+    <PackageId>Octopus.Server.Extensibility.IssueTracker.GitHub</PackageId>
+    <PackageIconUrl>http://i.octopusdeploy.com/resources/Avatar3_360.png</PackageIconUrl>
+    <PackageLicenseUrl>https://github.com/OctopusDeploy/GitHubIssueTracker/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/OctopusDeploy/GitHubIssueTracker</PackageProjectUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Octopus.Diagnostics" Version="1.2.3-enh-workitems0004" />
+    <PackageReference Include="Octopus.Server.Extensibility" Version="6.0.3-enh-workitems0045" />
+    <PackageReference Include="Octopus.Shared" Version="4.8.3-enh-workitems1" />
+  </ItemGroup>
+</Project>
