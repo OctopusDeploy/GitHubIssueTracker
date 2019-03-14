@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Octopus.Data.Resources.Attributes;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
 
@@ -10,6 +11,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 
         [DisplayName("GitHub Base Url")]
         [Description(GitHubBaseUrlDescription)]
+        [Required]
         [Writeable]
         public string BaseUrl { get; set; }
     }
