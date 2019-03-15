@@ -29,7 +29,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 
             var isEnabled = store.GetIsEnabled();
 
-            return packageMetadata.WorkItems.Select(wi => new WorkItemLink
+            return packageMetadata.WorkItems?.Select(wi => new WorkItemLink
                 {
                     Id = wi.Id,
                     LinkText = wi.LinkText,
@@ -49,7 +49,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
             var baseToUse = !string.IsNullOrWhiteSpace(vcsRoot) ? vcsRoot : baseUrl;
 
             var linkDataComponents = linkData.Split('#').ToList();
-            if (linkDataComponents.Count == 2)
+            if (!string.IsNullOrEmpty(linkDataComponents[0]))
             {
                 // we have org/repo or user/repo formatted, insert "issues" between that and the issueId
                 linkDataComponents.Insert(1, "issues");
@@ -60,7 +60,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
             else
             {
                 // we have only issueId, insert "issues" before it
-                linkDataComponents.Insert(0, "issues");
+                linkDataComponents[0] = "issues";
             }
 
             return baseToUse + "/" + string.Join("/", linkDataComponents);
