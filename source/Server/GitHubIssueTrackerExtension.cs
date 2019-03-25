@@ -40,6 +40,8 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub
                 .As<IContributeToConfigureCommand>()
                 .InstancePerDependency();
 
+            builder.RegisterType<CommentParser>().AsSelf().InstancePerDependency();
+
             builder.RegisterType<WorkItemLinkMapper>().As<IWorkItemLinkMapper>().InstancePerDependency();
         }
     }

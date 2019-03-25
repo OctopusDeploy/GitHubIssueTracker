@@ -6,6 +6,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
     public class GitHubConfigurationStore : ExtensionConfigurationStore<GitHubConfiguration>, IGitHubConfigurationStore
     {
+        public static string CommentParser = "GitHub";
         public static string SingletonId = "issuetracker-github";
         
         public GitHubConfigurationStore(IConfigurationStore configurationStore) : base(configurationStore)

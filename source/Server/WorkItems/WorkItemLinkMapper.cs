@@ -9,18 +9,21 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
     public class WorkItemLinkMapper : IWorkItemLinkMapper
     {
         private readonly IGitHubConfigurationStore store;
+        private readonly CommentParser commentParser;
 
-        public WorkItemLinkMapper(IGitHubConfigurationStore store)
+        public WorkItemLinkMapper(IGitHubConfigurationStore store,
+            CommentParser commentParser)
         {
             this.store = store;
+            this.commentParser = commentParser;
         }
 
-        public string IssueTrackerId => GitHubConfigurationStore.SingletonId;
+        public string CommentParser => GitHubConfigurationStore.CommentParser;
         public bool IsEnabled => store.GetIsEnabled();
 
         public WorkItemLink[] Map(OctopusPackageMetadata packageMetadata)
         {
-            if (packageMetadata.IssueTrackerId != IssueTrackerId)
+            if (packageMetadata.CommentParser != CommentParser)
                 return null;
 
             var baseUrl = store.GetBaseUrl();
@@ -29,11 +32,13 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 
             var isEnabled = store.GetIsEnabled();
 
-            return packageMetadata.WorkItems?.Select(wi => new WorkItemLink
+            var workItemReferences = commentParser.ParseWorkItemReferences(packageMetadata);
+
+            return workItemReferences.Select(wir => new WorkItemLink
                 {
-                    Id = wi.Id,
-                    LinkText = wi.LinkText,
-                    LinkUrl = isEnabled ? NormalizeLinkData(baseUrl, packageMetadata.VcsRoot, wi.LinkData) : wi.LinkData
+                    Id = wir.IssueNumber,
+                    Description = wir.IssueNumber,
+                    LinkUrl = isEnabled ? NormalizeLinkData(baseUrl, packageMetadata.VcsRoot, wir.LinkData) : wir.LinkData
                 })
                 .ToArray();
         }

@@ -15,7 +15,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub
             this.configurationStore = configurationStore;
         }
 
-        public string IssueTrackerId => GitHubConfigurationStore.SingletonId;
+        public string CommentParser => GitHubConfigurationStore.CommentParser;
         public string IssueTrackerName => Name;
 
         public bool IsEnabled => configurationStore.GetIsEnabled();

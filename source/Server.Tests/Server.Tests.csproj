@@ -12,6 +12,7 @@
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Octopus.Server.Extensibility" Version="6.0.3-enh-workitems0051" />
     <ProjectReference Include="..\Server\Server.csproj" />
   </ItemGroup>
 
