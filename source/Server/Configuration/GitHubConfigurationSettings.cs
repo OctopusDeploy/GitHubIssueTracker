@@ -24,8 +24,8 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
         {
             var isEnabled = ConfigurationDocumentStore.GetIsEnabled();
 
-            yield return new ConfigurationValue("Octopus.IssueTrackers.GitHubIssueTracker", isEnabled.ToString(), isEnabled, "Is Enabled");
-            yield return new ConfigurationValue("Octopus.IssueTrackers.GitHubBaseUrl", ConfigurationDocumentStore.GetBaseUrl(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetBaseUrl()), "GitHub Base Url");
+            yield return new ConfigurationValue("Octopus.IssueTracker.GitHubIssueTracker", isEnabled.ToString(), isEnabled, "Is Enabled");
+            yield return new ConfigurationValue("Octopus.IssueTracker.GitHubBaseUrl", ConfigurationDocumentStore.GetBaseUrl(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetBaseUrl()), "GitHub Base Url");
         }
 
         public override void BuildMappings(IResourceMappingsBuilder builder)
