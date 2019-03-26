@@ -1,4 +1,8 @@
-﻿using NUnit.Framework;
+﻿using NSubstitute;
+using NUnit.Framework;
+using Octopus.Server.Extensibility.HostServices.Model.IssueTrackers;
+using Octopus.Server.Extensibility.HostServices.Model.PackageMetadata;
+using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
@@ -13,6 +17,28 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
         public string NormalizeLinkData(string baseUrl, string vcsRoot, string linkData)
         {
             return WorkItemLinkMapper.NormalizeLinkData(baseUrl, vcsRoot, linkData);
+        }
+
+        [Test]
+        public void DuplicatesGetIgnored()
+        {
+            var store = Substitute.For<IGitHubConfigurationStore>();
+            store.GetBaseUrl().Returns("https://github.com");
+            store.GetIsEnabled().Returns(true);
+            
+            var mapper = new WorkItemLinkMapper(store, new CommentParser());
+
+            var workItems = mapper.Map(new OctopusPackageMetadata
+            {
+                CommentParser = "GitHub",
+                Commits = new Commit[]
+                {
+                    new Commit { Id = "abcd", Comment = "This is a test commit message. Fixes #1234"},
+                    new Commit { Id = "defg", Comment = "This is a test commit message with duplicates. Fixes #1234"}
+                }
+            });
+
+            Assert.AreEqual(1, workItems.Length);
         }
     }
 }

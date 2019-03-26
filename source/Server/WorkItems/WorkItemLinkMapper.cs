@@ -40,6 +40,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
                     Description = wir.IssueNumber,
                     LinkUrl = isEnabled ? NormalizeLinkData(baseUrl, packageMetadata.VcsRoot, wir.LinkData) : wir.LinkData
                 })
+                .Distinct()
                 .ToArray();
         }
 
