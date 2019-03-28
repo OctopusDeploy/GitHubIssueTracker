@@ -17,12 +17,12 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 
         public string GetBaseUrl()
         {
-            return GetProperty(doc => doc.BaseUrl);
+            return GetProperty(doc => doc.BaseUrl?.Trim('/'));
         }
 
         public void SetBaseUrl(string baseUrl)
         {
-            SetProperty(doc => doc.BaseUrl = baseUrl);
+            SetProperty(doc => doc.BaseUrl = baseUrl?.Trim('/'));
         }
     }
 }
