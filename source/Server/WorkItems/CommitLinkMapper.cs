@@ -17,9 +17,12 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 
         public string Map(string vcsRoot, string commitNumber)
         {
-            if (!IsEnabled)
+            if (!IsEnabled || string.IsNullOrWhiteSpace(vcsRoot))
                 return null;
 
+            if (vcsRoot.EndsWith(".git"))
+                vcsRoot = vcsRoot.Replace(".git", string.Empty);
+            
             return vcsRoot + "/commit/" + commitNumber;
         }
     }
