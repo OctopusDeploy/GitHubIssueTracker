@@ -12,8 +12,8 @@
     <PackageProjectUrl>https://github.com/OctopusDeploy/GitHubIssueTracker</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Octopus.Diagnostics" Version="1.2.3-enh-workitems0004" />
-    <PackageReference Include="Octopus.Server.Extensibility" Version="6.0.3-enh-workitems0057" />
-    <PackageReference Include="Octopus.Shared" Version="4.8.7-enh-workitems2" />
+    <PackageReference Include="Octopus.Diagnostics" Version="1.3.0" />
+    <PackageReference Include="Octopus.Server.Extensibility" Version="6.1.2" />
+    <PackageReference Include="Octopus.Shared" Version="4.9.0" />
   </ItemGroup>
 </Project>

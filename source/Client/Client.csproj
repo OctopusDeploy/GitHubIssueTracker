@@ -14,6 +14,6 @@
     <PackageProjectUrl>https://github.com/OctopusDeploy/GitHubIssueTracker</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Octopus.Client" Version="6.1.2-enh-workitems46" />
+    <PackageReference Include="Octopus.Client" Version="6.2.0" />
   </ItemGroup>
 </Project>

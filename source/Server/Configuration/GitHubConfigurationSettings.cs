@@ -20,12 +20,12 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 
         public override string Description => "GitHub Issue Tracker settings";
 
-        public override IEnumerable<ConfigurationValue> GetConfigurationValues()
+        public override IEnumerable<IConfigurationValue> GetConfigurationValues()
         {
             var isEnabled = ConfigurationDocumentStore.GetIsEnabled();
 
-            yield return new ConfigurationValue("Octopus.IssueTracker.GitHubIssueTracker", isEnabled.ToString(), isEnabled, "Is Enabled");
-            yield return new ConfigurationValue("Octopus.IssueTracker.GitHubBaseUrl", ConfigurationDocumentStore.GetBaseUrl(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetBaseUrl()), "GitHub Base Url");
+            yield return new ConfigurationValue<bool>("Octopus.IssueTracker.GitHubIssueTracker", isEnabled, isEnabled, "Is Enabled");
+            yield return new ConfigurationValue<string>("Octopus.IssueTracker.GitHubBaseUrl", ConfigurationDocumentStore.GetBaseUrl(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetBaseUrl()), "GitHub Base Url");
         }
 
         public override void BuildMappings(IResourceMappingsBuilder builder)
