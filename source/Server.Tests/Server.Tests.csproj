@@ -12,7 +12,7 @@
     <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Octopus.Server.Extensibility" Version="6.1.2" />
+    <PackageReference Include="Octopus.Server.Extensibility" Version="6.1.4" />
     <ProjectReference Include="..\Server\Server.csproj" />
   </ItemGroup>
 
