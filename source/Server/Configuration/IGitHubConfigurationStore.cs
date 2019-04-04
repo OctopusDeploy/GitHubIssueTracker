@@ -7,5 +7,14 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
     {
         string GetBaseUrl();
         void SetBaseUrl(string baseUrl);
+
+        string GetUsername();
+        void SetUsername(string username);
+
+        string GetPassword();
+        void SetPassword(string password);
+
+        string GetReleaseNotePrefix();
+        void SetReleaseNotePrefix(string releaseNotePrefix);
     }
 }
