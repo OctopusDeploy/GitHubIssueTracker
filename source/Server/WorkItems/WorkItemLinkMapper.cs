@@ -13,7 +13,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
         private readonly IGitHubConfigurationStore store;
         private readonly CommentParser commentParser;
         private readonly IGitHubClient githubClient;
-        private readonly Regex ownerRepoRegex = new Regex("(?:https?://)?(?:[^?/\\s]+[?/])(.*)", RegexOptions.Compiled);
+        private readonly Regex ownerRepoRegex = new Regex("(?:https?://)?(?:[^?/\\s]+[?/])(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 
         public WorkItemLinkMapper(IGitHubConfigurationStore store,
@@ -45,8 +45,12 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
             return workItemReferences.Select(wir => new WorkItemLink
                 {
                     Id = wir.IssueNumber,
-                    Description = isEnabled ? GetReleaseNote(packageMetadata.VcsRoot, wir.IssueNumber, releaseNotePrefix) : wir.IssueNumber,
-                    LinkUrl = isEnabled ? NormalizeLinkData(baseUrl, packageMetadata.VcsRoot, wir.LinkData) : wir.LinkData
+                    Description = isEnabled
+                        ? GetReleaseNote(packageMetadata.VcsRoot, wir.IssueNumber, releaseNotePrefix)
+                        : wir.IssueNumber,
+                    LinkUrl = isEnabled
+                        ? NormalizeLinkData(baseUrl, packageMetadata.VcsRoot, wir.LinkData)
+                        : wir.LinkData
                 })
                 .Distinct()
                 .ToArray();
@@ -54,21 +58,27 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 
         public string GetReleaseNote(string vcsRoot, string issueNumber, string releaseNotePrefix)
         {
-            if (string.IsNullOrWhiteSpace(releaseNotePrefix))
-                return issueNumber;
-
             var ownerRepoParts = ownerRepoRegex.Match(vcsRoot).Groups[1]?.Value.Split('/');
+            // We couldn't figure out owner/repo from vcsRoot so return issue number
             if (ownerRepoParts.Count() < 2)
                 return issueNumber;
 
+            var owner = ownerRepoParts[0];
+            var repo = ownerRepoParts[1];
+            var issue = githubClient.Issue.Get(owner, repo, int.Parse(issueNumber)).Result;
+            // No comments on issue, or no release note prefix has been specified, so return issue title
+            if (issue.Comments == 0 || string.IsNullOrWhiteSpace(releaseNotePrefix))
+                return issue.Title;
+
             var releaseNoteRegex = new Regex($"^{releaseNotePrefix}", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            var issueComments = githubClient.Issue.Comment.GetAllForIssue(ownerRepoParts[0], ownerRepoParts[1], int.Parse(issueNumber)).Result;
+            var issueComments = githubClient.Issue.Comment
+                .GetAllForIssue(owner, repo, int.Parse(issueNumber)).Result;
 
             var releaseNote = issueComments?.LastOrDefault(c => releaseNoteRegex.IsMatch(c.Body))?.Body;
-            if (!string.IsNullOrWhiteSpace(releaseNote))
-                return releaseNoteRegex.Replace(releaseNote, "")?.Trim();
-
-            return issueNumber;
+            // Return (last, if multiple found) comment that matched release note prefix, or return issue title
+            return !string.IsNullOrWhiteSpace(releaseNote)
+                ? releaseNoteRegex.Replace(releaseNote, "")?.Trim()
+                : issue.Title;
         }
 
         public static string NormalizeLinkData(string baseUrl, string vcsRoot, string linkData)
