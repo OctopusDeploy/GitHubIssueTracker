@@ -14,6 +14,11 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 
         [Required]
         public string BaseUrl { get; set; }
+        public ReleaseNoteOptions ReleaseNoteOptions { get; set; } = new ReleaseNoteOptions();
+    }
+
+    public class ReleaseNoteOptions
+    {
         public string Username { get; set; }
         [Encrypted]
         public string Password { get; set; }

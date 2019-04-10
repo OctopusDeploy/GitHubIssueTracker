@@ -34,6 +34,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
         public override void BuildMappings(IResourceMappingsBuilder builder)
         {
             builder.Map<GitHubConfigurationResource, GitHubConfiguration>();
+            builder.Map<ReleaseNoteOptionsResource, ReleaseNoteOptions>();
         }
     }
 }
