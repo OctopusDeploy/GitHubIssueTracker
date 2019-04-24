@@ -44,7 +44,6 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub
             builder.RegisterType<CommentParser>().AsSelf().InstancePerDependency();
 
             builder.RegisterType<WorkItemLinkMapper>().As<IWorkItemLinkMapper>().InstancePerDependency();
-            builder.RegisterType<CommitLinkMapper>().As<ICommitLinkMapper>().InstancePerDependency();
 
             builder.Register(c =>
             {
