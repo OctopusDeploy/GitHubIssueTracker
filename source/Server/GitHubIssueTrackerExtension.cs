@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using Octokit;
 using Octopus.Server.Extensibility.Extensions;
 using Octopus.Server.Extensibility.Extensions.Infrastructure;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
@@ -43,6 +44,36 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub
             builder.RegisterType<CommentParser>().AsSelf().InstancePerDependency();
 
             builder.RegisterType<WorkItemLinkMapper>().As<IWorkItemLinkMapper>().InstancePerDependency();
+
+            builder.Register(c =>
+            {
+                var productHeaderValue = "octopus-github-issue-tracker";
+                var store = c.Resolve<IGitHubConfigurationStore>();
+                var username = store.GetUsername();
+                var password = store.GetPassword();
+
+                if (!store.GetIsEnabled())
+                    return null;
+
+                var client = new GitHubClient(new ProductHeaderValue(productHeaderValue));
+                if (string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(password))
+                    return client;
+
+                // Username/Password authentication used
+                if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
+                {
+                    client.Credentials = new Credentials(username, password);
+                }
+
+                // Personal Access Token authentication used
+                if(string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
+                {
+                    client.Credentials = new Credentials(password);
+                }
+
+                return client;
+            }).As<IGitHubClient>()
+            .InstancePerDependency();
         }
     }
 }

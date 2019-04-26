@@ -24,5 +24,35 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
         {
             SetProperty(doc => doc.BaseUrl = baseUrl?.Trim('/'));
         }
+
+        public string GetUsername()
+        {
+            return GetProperty(doc => doc.ReleaseNoteOptions.Username);
+        }
+
+        public void SetUsername(string username)
+        {
+            SetProperty(doc => doc.ReleaseNoteOptions.Username = username);
+        }
+
+        public string GetPassword()
+        {
+            return GetProperty(doc => doc.ReleaseNoteOptions.Password);
+        }
+
+        public void SetPassword(string password)
+        {
+            SetProperty(doc => doc.ReleaseNoteOptions.Password = password);
+        }
+
+        public string GetReleaseNotePrefix()
+        {
+            return GetProperty(doc => doc.ReleaseNoteOptions.ReleaseNotePrefix);
+        }
+
+        public void SetReleaseNotePrefix(string releaseNotePrefix)
+        {
+            SetProperty(doc => doc.ReleaseNoteOptions.ReleaseNotePrefix = releaseNotePrefix);
+        }
     }
 }
