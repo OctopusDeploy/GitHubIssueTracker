@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Octokit;
 using Octopus.Server.Extensibility.Extensions.WorkItems;
@@ -12,13 +13,13 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
     {
         private readonly IGitHubConfigurationStore store;
         private readonly CommentParser commentParser;
-        private readonly IGitHubClient githubClient;
+        private readonly Lazy<IGitHubClient> githubClient;
         private readonly Regex ownerRepoRegex = new Regex("(?:https?://)?(?:[^?/\\s]+[?/])(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 
         public WorkItemLinkMapper(IGitHubConfigurationStore store,
             CommentParser commentParser,
-            IGitHubClient githubClient)
+            Lazy<IGitHubClient> githubClient)
         {
             this.store = store;
             this.commentParser = commentParser;
@@ -65,13 +66,13 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 
             var owner = ownerRepoParts[0];
             var repo = ownerRepoParts[1];
-            var issue = githubClient.Issue.Get(owner, repo, int.Parse(issueNumber)).Result;
+            var issue = githubClient.Value.Issue.Get(owner, repo, int.Parse(issueNumber)).Result;
             // No comments on issue, or no release note prefix has been specified, so return issue title
             if (issue.Comments == 0 || string.IsNullOrWhiteSpace(releaseNotePrefix))
                 return issue.Title;
 
             var releaseNoteRegex = new Regex($"^{releaseNotePrefix}", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            var issueComments = githubClient.Issue.Comment
+            var issueComments = githubClient.Value.Issue.Comment
                 .GetAllForIssue(owner, repo, int.Parse(issueNumber)).Result;
 
             var releaseNote = issueComments?.LastOrDefault(c => releaseNoteRegex.IsMatch(c.Body))?.Body;
