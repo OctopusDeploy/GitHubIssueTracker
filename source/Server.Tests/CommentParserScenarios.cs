@@ -30,6 +30,17 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             Assert.AreEqual("1234", reference.IssueNumber);
             Assert.AreEqual("OrgA/RepoB#1234", reference.LinkData);
         }
+
+        [Test]
+        public void IssueReferenceToAnotherRepoWithDashGetsParsedCorrectly()
+        {
+            var workItemReferences = new CommentParser().ParseWorkItemReferences(Create("Fixes OrgA/Repo-B#1234"));
+            Assert.IsNotEmpty(workItemReferences);
+            
+            var reference = workItemReferences.First();
+            Assert.AreEqual("1234", reference.IssueNumber);
+            Assert.AreEqual("OrgA/Repo-B#1234", reference.LinkData);
+        }
         
         [Test]
         public void GHReferenceGetsParsedCorrectly()
