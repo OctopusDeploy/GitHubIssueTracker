@@ -62,20 +62,28 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
             var (success, owner, repo) = GetGitHubOwnerAndRepo(vcsRoot, linkData);
             if (!success)
                 return issueNumber;
-            var issue = githubClient.Value.Issue.Get(owner, repo, int.Parse(issueNumber)).Result;
-            // No comments on issue, or no release note prefix has been specified, so return issue title
-            if (issue.Comments == 0 || string.IsNullOrWhiteSpace(releaseNotePrefix))
-                return issue.Title;
+            
+            try
+            {
+                var issue = githubClient.Value.Issue.Get(owner, repo, int.Parse(issueNumber)).Result;
+                // No comments on issue, or no release note prefix has been specified, so return issue title
+                if (issue.Comments == 0 || string.IsNullOrWhiteSpace(releaseNotePrefix))
+                    return issue.Title;
 
-            var releaseNoteRegex = new Regex($"^{releaseNotePrefix}", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            var issueComments = githubClient.Value.Issue.Comment
-                .GetAllForIssue(owner, repo, int.Parse(issueNumber)).Result;
+                var releaseNoteRegex = new Regex($"^{releaseNotePrefix}", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                var issueComments = githubClient.Value.Issue.Comment
+                    .GetAllForIssue(owner, repo, int.Parse(issueNumber)).Result;
 
-            var releaseNote = issueComments?.LastOrDefault(c => releaseNoteRegex.IsMatch(c.Body))?.Body;
-            // Return (last, if multiple found) comment that matched release note prefix, or return issue title
-            return !string.IsNullOrWhiteSpace(releaseNote)
-                ? releaseNoteRegex.Replace(releaseNote, "")?.Trim()
-                : issue.Title;
+                var releaseNote = issueComments?.LastOrDefault(c => releaseNoteRegex.IsMatch(c.Body))?.Body;
+                // Return (last, if multiple found) comment that matched release note prefix, or return issue title
+                return !string.IsNullOrWhiteSpace(releaseNote)
+                    ? releaseNoteRegex.Replace(releaseNote, "")?.Trim()
+                    : issue.Title;
+            }
+            catch (Exception e)
+            {
+                return issueNumber;
+            }
         }
 
         public static string NormalizeLinkData(string baseUrl, string vcsRoot, string linkData)
