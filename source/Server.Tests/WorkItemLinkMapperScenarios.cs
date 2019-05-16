@@ -87,7 +87,8 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
                 }
             });
 
-            Assert.AreEqual(1, workItems.Length);
+            Assert.IsTrue(workItems.Succeeded);
+            Assert.AreEqual(1, workItems.Value.Length);
         }
     }
 }

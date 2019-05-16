@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Octokit;
+using Octopus.Server.Extensibility.Extensions;
 using Octopus.Server.Extensibility.Extensions.WorkItems;
 using Octopus.Server.Extensibility.HostServices.Model.PackageMetadata;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
@@ -29,7 +30,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
         public string CommentParser => GitHubConfigurationStore.CommentParser;
         public bool IsEnabled => store.GetIsEnabled();
 
-        public WorkItemLink[] Map(OctopusPackageMetadata packageMetadata)
+        public ExtResult<WorkItemLink[]> Map(OctopusPackageMetadata packageMetadata)
         {
             if (packageMetadata.CommentParser != CommentParser)
                 return null;
