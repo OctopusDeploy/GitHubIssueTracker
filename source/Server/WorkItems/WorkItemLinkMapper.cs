@@ -5,6 +5,7 @@ using Octokit;
 using Octopus.Server.Extensibility.Extensions.WorkItems;
 using Octopus.Server.Extensibility.HostServices.Model.PackageMetadata;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
+using Octopus.Server.Extensibility.IssueTracker.GitHub.Extensions;
 using Octopus.Server.Extensibility.Resources.IssueTrackers;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
@@ -14,8 +15,6 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
         private readonly IGitHubConfigurationStore store;
         private readonly CommentParser commentParser;
         private readonly Lazy<IGitHubClient> githubClient;
-        private readonly Regex ownerRepoRegex = new Regex("(?:https?://)?(?:[^?/\\s]+[?/])(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
 
         public WorkItemLinkMapper(IGitHubConfigurationStore store,
             CommentParser commentParser,
@@ -59,7 +58,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 
         public string GetReleaseNote(string vcsRoot, string issueNumber, string linkData, string releaseNotePrefix)
         {
-            var (success, owner, repo) = GetGitHubOwnerAndRepo(vcsRoot, linkData);
+            var (success, owner, repo) = vcsRoot.ParseGitHubOwnerAndRepo(linkData);
             if (!success)
                 return issueNumber;
             
@@ -113,38 +112,5 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 
             return baseToUse + "/" + string.Join("/", linkDataComponents);
         }
-        
-        (bool success, string owner, string repo) GetGitHubOwnerAndRepo(string gitHubUrl, string linkData)
-        {
-            (bool, string, string) GetOwnerRepoFromVcsRoot(string vcsRoot)
-            {
-                var ownerRepoParts = ownerRepoRegex.Match(vcsRoot).Groups[1]?.Value.Split('/', '#');
-                return ownerRepoParts.Count() < 2 
-                    ? (false, null, null) 
-                    : (true, ownerRepoParts[0], ownerRepoParts[1]);
-            }
-
-            if (string.IsNullOrWhiteSpace(linkData))
-            {
-                return GetOwnerRepoFromVcsRoot(gitHubUrl);
-            }
-            else if (linkData.StartsWith("http"))
-            {
-                return GetOwnerRepoFromVcsRoot(linkData);
-            }
-
-            var linkDataComponents = linkData.Split('#');
-            if (string.IsNullOrWhiteSpace(linkDataComponents[0]) || linkDataComponents[0].Split('/').Length != 2)
-            {
-                return GetOwnerRepoFromVcsRoot(gitHubUrl);
-            }
-
-            var ownerRepoComponents = linkDataComponents[0].Split('/');
-            if (string.IsNullOrWhiteSpace(ownerRepoComponents[0]) || string.IsNullOrWhiteSpace(ownerRepoComponents[1]))
-                return (false, null, null);
-            
-            return (true, ownerRepoComponents[0], ownerRepoComponents[1]);
-        }
-
     }
 }

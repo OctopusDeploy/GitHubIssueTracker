@@ -5,8 +5,11 @@ using Octopus.Server.Extensibility.Extensions;
 using Octopus.Server.Extensibility.Extensions.Infrastructure;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
 using Octopus.Server.Extensibility.Extensions.Mappings;
+using Octopus.Server.Extensibility.Extensions.Model.Projects;
 using Octopus.Server.Extensibility.Extensions.WorkItems;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
+using Octopus.Server.Extensibility.IssueTracker.GitHub.Deployments;
+using Octopus.Server.Extensibility.IssueTracker.GitHub.Projects;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub
@@ -36,6 +39,10 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub
             builder.RegisterType<GitHubIssueTracker>()
                 .As<IIssueTracker>()
                 .InstancePerLifetimeScope();
+
+            builder.RegisterType<DeploymentObserver>().AsSelf().InstancePerDependency();
+
+            builder.RegisterType<ProjectSettingsMetadataProvider>().As<IContributeProjectSettingsMetadata>().InstancePerDependency();
 
             builder.RegisterType<GitHubConfigureCommands>()
                 .As<IContributeToConfigureCommand>()
