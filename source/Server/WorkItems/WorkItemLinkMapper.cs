@@ -30,7 +30,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
         public string CommentParser => GitHubConfigurationStore.CommentParser;
         public bool IsEnabled => store.GetIsEnabled();
 
-        public ExtResult<WorkItemLink[]> Map(OctopusPackageMetadata packageMetadata)
+        public SuccessOrErrorResult<WorkItemLink[]> Map(OctopusPackageMetadata packageMetadata)
         {
             if (packageMetadata.CommentParser != CommentParser)
                 return null;
