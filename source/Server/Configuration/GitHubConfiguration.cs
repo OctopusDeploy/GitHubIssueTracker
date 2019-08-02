@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Octopus.Data.Model;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
-using Octopus.Shared.Model;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
