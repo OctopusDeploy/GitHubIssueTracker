@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using Octokit;
 using Octopus.Server.Extensibility.Extensions;
 using Octopus.Server.Extensibility.Extensions.WorkItems;
-using Octopus.Server.Extensibility.HostServices.Model.PackageMetadata;
+using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.Resources.IssueTrackers;
 
@@ -30,29 +30,24 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
         public string CommentParser => GitHubConfigurationStore.CommentParser;
         public bool IsEnabled => store.GetIsEnabled();
 
-        public SuccessOrErrorResult<WorkItemLink[]> Map(OctopusPackageMetadata packageMetadata)
+        public SuccessOrErrorResult<WorkItemLink[]> Map(OctopusBuildInformation buildInformation)
         {
-            if (packageMetadata.CommentParser != CommentParser)
+            if (!IsEnabled)
                 return null;
 
             var baseUrl = store.GetBaseUrl();
             if (string.IsNullOrWhiteSpace(baseUrl))
                 return null;
 
-            var isEnabled = store.GetIsEnabled();
-
             var releaseNotePrefix = store.GetReleaseNotePrefix();
-            var workItemReferences = commentParser.ParseWorkItemReferences(packageMetadata);
+            var workItemReferences = commentParser.ParseWorkItemReferences(buildInformation);
 
             return workItemReferences.Select(wir => new WorkItemLink
                 {
                     Id = wir.IssueNumber,
-                    Description = isEnabled
-                        ? GetReleaseNote(packageMetadata.VcsRoot, wir.IssueNumber, wir.LinkData, releaseNotePrefix)
-                        : wir.IssueNumber,
-                    LinkUrl = isEnabled
-                        ? NormalizeLinkData(baseUrl, packageMetadata.VcsRoot, wir.LinkData)
-                        : wir.LinkData
+                    Description = GetReleaseNote(buildInformation.VcsRoot, wir.IssueNumber, wir.LinkData, releaseNotePrefix),
+                    LinkUrl = NormalizeLinkData(baseUrl, buildInformation.VcsRoot, wir.LinkData),
+                    Source = GitHubConfigurationStore.CommentParser
                 })
                 .Distinct()
                 .ToArray();

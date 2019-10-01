@@ -1,6 +1,6 @@
 using System.Linq;
 using System.Text.RegularExpressions;
-using Octopus.Server.Extensibility.HostServices.Model.PackageMetadata;
+using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 {
@@ -8,9 +8,9 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
     {
         private static readonly Regex Expression = new Regex("(?:close[d|s]*|fix[ed|es]*|resolve[d|s]*):?\\s((?:[A-Z0-9/_.-]*#|GH-|http[/A-Z:.]*/issues/)(\\d+))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         
-        public WorkItemReference[] ParseWorkItemReferences(OctopusPackageMetadata packageMetadata)
+        public WorkItemReference[] ParseWorkItemReferences(OctopusBuildInformation buildInformation)
         {
-            return packageMetadata.Commits.SelectMany(c => ParseReferences(c.Comment))
+            return buildInformation.Commits.SelectMany(c => ParseReferences(c.Comment))
                 .ToArray();
         }
 

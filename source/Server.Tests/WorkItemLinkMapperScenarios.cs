@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using Octokit;
-using Octopus.Server.Extensibility.HostServices.Model.PackageMetadata;
+using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems;
 using Commit = Octopus.Server.Extensibility.HostServices.Model.IssueTrackers.Commit;
@@ -75,11 +76,10 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
 
             var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy);
 
-            var workItems = mapper.Map(new OctopusPackageMetadata
+            var workItems = mapper.Map(new OctopusBuildInformation
             {
                 VcsRoot = "https://github.com/UserX/RepoY",
                 VcsType = "Git",
-                CommentParser = "GitHub",
                 Commits = new Commit[]
                 {
                     new Commit { Id = "abcd", Comment = "This is a test commit message. Fixes #1234"},
@@ -89,6 +89,36 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
 
             Assert.IsTrue(workItems.Succeeded);
             Assert.AreEqual(1, workItems.Value.Length);
+        }
+
+        [Test]
+        public void SourceGetsSet()
+        {
+            var store = Substitute.For<IGitHubConfigurationStore>();
+            var githubClient = Substitute.For<IGitHubClient>();
+            var githubClientLazy = new Lazy<IGitHubClient>(() => githubClient);
+            store.GetBaseUrl().Returns("https://github.com");
+            store.GetIsEnabled().Returns(true);
+
+            var workItemNumber = 1234;
+            
+            githubClient.Issue.Get(Arg.Is("UserX"), Arg.Is("RepoY"), Arg.Is(workItemNumber))
+                .Returns(new Issue("url", "htmlUrl", "commentUrl", "eventsUrl", workItemNumber, ItemState.Open, "Test title", "test body", null, null, new List<Octokit.Label>(), null, new List<Octokit.User>(), null, 0, null, null, DateTimeOffset.Now, null, workItemNumber, "node", false, null, null));
+
+            var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy);
+
+            var workItems = mapper.Map(new OctopusBuildInformation
+            {
+                VcsRoot = "https://github.com/UserX/RepoY",
+                VcsType = "Git",
+                Commits = new Commit[]
+                {
+                    new Commit { Id = "abcd", Comment = "This is a test commit message. Fixes #1234"}
+                }
+            });
+
+            Assert.IsTrue(workItems.Succeeded);
+            Assert.AreEqual("GitHub", workItems.Value.Single().Source);
         }
     }
 }
