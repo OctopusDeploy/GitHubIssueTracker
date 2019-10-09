@@ -1,7 +1,7 @@
 using System.Linq;
 using NUnit.Framework;
 using Octopus.Server.Extensibility.HostServices.Model.IssueTrackers;
-using Octopus.Server.Extensibility.HostServices.Model.PackageMetadata;
+using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
@@ -83,9 +83,9 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             Assert.AreEqual("#1234", reference.LinkData);
         }
 
-        private OctopusPackageMetadata Create(string comment)
+        private OctopusBuildInformation Create(string comment)
         {
-            return new OctopusPackageMetadata
+            return new OctopusBuildInformation
             {
                 Commits = new[] { new Commit{ Id = "a", Comment = comment }}
             };
