@@ -4,6 +4,7 @@ using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using Octokit;
+using Octopus.Diagnostics;
 using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems;
@@ -85,7 +86,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
                     new Commit { Id = "abcd", Comment = "This is a test commit message. Fixes #1234"},
                     new Commit { Id = "defg", Comment = "This is a test commit message with duplicates. Fixes #1234"}
                 }
-            });
+            }, Substitute.For<ILogWithContext>());
 
             Assert.IsTrue(workItems.Succeeded);
             Assert.AreEqual(1, workItems.Value.Length);
@@ -115,7 +116,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
                 {
                     new Commit { Id = "abcd", Comment = "This is a test commit message. Fixes #1234"}
                 }
-            });
+            }, Substitute.For<ILogWithContext>());
 
             Assert.IsTrue(workItems.Succeeded);
             Assert.AreEqual("GitHub", workItems.Value.Single().Source);
