@@ -8,6 +8,7 @@ using Octopus.Server.Extensibility.Extensions.WorkItems;
 using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.Resources.IssueTrackers;
+using Octopus.Versioning;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 {
@@ -31,7 +32,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
         public string CommentParser => GitHubConfigurationStore.CommentParser;
         public bool IsEnabled => store.GetIsEnabled();
 
-        public SuccessOrErrorResult<WorkItemLink[]> Map(OctopusBuildInformation buildInformation, ILogWithContext log)
+        public SuccessOrErrorResult<WorkItemLink[]> Map(string packageId, IVersion version, OctopusBuildInformation buildInformation, ILogWithContext log)
         {
             if (!IsEnabled)
                 return null;
