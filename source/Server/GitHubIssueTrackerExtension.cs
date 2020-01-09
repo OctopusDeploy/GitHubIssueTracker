@@ -1,9 +1,11 @@
 ﻿using System;
 using Autofac;
 using Octokit;
+using Octokit.Internal;
 using Octopus.Server.Extensibility.Extensions;
 using Octopus.Server.Extensibility.Extensions.Infrastructure;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
+using Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api;
 using Octopus.Server.Extensibility.Extensions.Mappings;
 using Octopus.Server.Extensibility.Extensions.WorkItems;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
@@ -55,7 +57,12 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub
                 if (!store.GetIsEnabled())
                     return null;
 
-                var client = new GitHubClient(new ProductHeaderValue(productHeaderValue));
+
+                var productInformation = new ProductHeaderValue(productHeaderValue);
+                var octopusHttpClientFactory = c.Resolve<IOctopusHttpClientFactory>();
+                var connection = new Connection(productInformation, new HttpClientAdapter(() => octopusHttpClientFactory.HttpClientHandler));
+                
+                var client = new GitHubClient(connection);
                 if (string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(password))
                     return client;
 
