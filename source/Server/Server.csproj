@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Octopus.Server.Extensibility.IssueTracker.GitHub</RootNamespace>
     <AssemblyName>Octopus.Server.Extensibility.IssueTracker.GitHub</AssemblyName>
     <Description>Implements the GitHub issue tracker.</Description>

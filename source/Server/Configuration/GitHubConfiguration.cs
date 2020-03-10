@@ -4,7 +4,7 @@ using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
-    public class GitHubConfiguration : ExtensionConfigurationDocument
+    class GitHubConfiguration : ExtensionConfigurationDocument
     {
         public GitHubConfiguration() : base("GitHub", "Octopus Deploy", "1.0")
         {
@@ -17,7 +17,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
         public ReleaseNoteOptions ReleaseNoteOptions { get; set; } = new ReleaseNoteOptions();
     }
 
-    public class ReleaseNoteOptions
+    class ReleaseNoteOptions
     {
         public string Username { get; set; }
         [Encrypted]

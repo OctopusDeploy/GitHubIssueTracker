@@ -4,7 +4,7 @@ using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 {
-    public class CommentParser
+    class CommentParser
     {
         private static readonly Regex Expression = new Regex("(?:close[d|s]*|fix[ed|es]*|resolve[d|s]*):?\\s((?:[A-Z0-9/_.-]*#|GH-|http[/A-Z:.]*/issues/)(\\d+))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         

@@ -5,7 +5,7 @@ using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
-    public class GitHubConfigureCommands : IContributeToConfigureCommand
+    class GitHubConfigureCommands : IContributeToConfigureCommand
     {
         readonly ILog log;
         readonly Lazy<IGitHubConfigurationStore> GitHubConfiguration;

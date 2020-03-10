@@ -10,7 +10,7 @@ using Octopus.Server.Extensibility.Resources.IssueTrackers;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 {
-    public class WorkItemLinkMapper : IWorkItemLinkMapper
+    class WorkItemLinkMapper : IWorkItemLinkMapper
     {
         private readonly IGitHubConfigurationStore store;
         private readonly CommentParser commentParser;

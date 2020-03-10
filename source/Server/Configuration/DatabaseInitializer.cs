@@ -4,7 +4,7 @@ using Octopus.Server.Extensibility.Extensions.Infrastructure;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
-    public class DatabaseInitializer : ExecuteWhenDatabaseInitializes
+    class DatabaseInitializer : ExecuteWhenDatabaseInitializes
     {
         readonly ILog log;
         readonly IConfigurationStore configurationStore;

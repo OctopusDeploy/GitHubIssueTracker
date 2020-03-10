@@ -4,7 +4,7 @@ using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub
 {
-    public class GitHubIssueTracker : IIssueTracker
+    class GitHubIssueTracker : IIssueTracker
     {
         internal static string Name = "GitHub";
 
