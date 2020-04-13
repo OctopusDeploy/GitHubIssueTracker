@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Octopus.Data.Model;
 using Octopus.Data.Storage.Configuration;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
 
@@ -35,12 +35,12 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
             SetProperty(doc => doc.ReleaseNoteOptions.Username = username);
         }
 
-        public string GetPassword()
+        public SensitiveString GetPassword()
         {
             return GetProperty(doc => doc.ReleaseNoteOptions.Password);
         }
 
-        public void SetPassword(string password)
+        public void SetPassword(SensitiveString password)
         {
             SetProperty(doc => doc.ReleaseNoteOptions.Password = password);
         }

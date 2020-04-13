@@ -1,4 +1,5 @@
 ﻿using System;
+using Octopus.Data.Model;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
@@ -11,8 +12,8 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
         string GetUsername();
         void SetUsername(string username);
 
-        string GetPassword();
-        void SetPassword(string password);
+        SensitiveString GetPassword();
+        void SetPassword(SensitiveString password);
 
         string GetReleaseNotePrefix();
         void SetReleaseNotePrefix(string releaseNotePrefix);

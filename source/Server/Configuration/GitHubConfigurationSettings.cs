@@ -27,7 +27,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
             yield return new ConfigurationValue<bool>("Octopus.IssueTracker.GitHubIssueTracker", isEnabled, isEnabled, "Is Enabled");
             yield return new ConfigurationValue<string>("Octopus.IssueTracker.GitHubBaseUrl", ConfigurationDocumentStore.GetBaseUrl(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetBaseUrl()), "GitHub Base Url");
             yield return new ConfigurationValue<string>("Octopus.IssueTracker.GitHubUsername", ConfigurationDocumentStore.GetUsername(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetUsername()), "GitHub Username");
-            yield return new ConfigurationValue<string>("Octopus.IssueTracker.GitHubPassword", ConfigurationDocumentStore.GetPassword(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetPassword()), "GitHub Password", isSensitive: true);
+            yield return new ConfigurationValue<string>("Octopus.IssueTracker.GitHubPassword", ConfigurationDocumentStore.GetPassword()?.Value, isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetPassword()?.Value), "GitHub Password", isSensitive: true);
             yield return new ConfigurationValue<string>("Octopus.IssueTracker.GitHubReleaseNotePrefix", ConfigurationDocumentStore.GetReleaseNotePrefix(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetReleaseNotePrefix()), "GitHub Release Note Prefix");
         }
 
