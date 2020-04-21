@@ -6,9 +6,8 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
     class GitHubConfiguration : ExtensionConfigurationDocument
     {
-        public GitHubConfiguration() : base("GitHub", "Octopus Deploy", "1.0")
+        public GitHubConfiguration() : base(GitHubConfigurationStore.SingletonId, "GitHub", "Octopus Deploy", "1.0")
         {
-            Id = GitHubConfigurationStore.SingletonId;
             BaseUrl = "https://github.com";
         }
 
