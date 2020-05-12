@@ -1,5 +1,4 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Octokit;
 using Octokit.Internal;
 using Octopus.Server.Extensibility.Extensions;
@@ -63,19 +62,19 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub
                 var connection = new Connection(productInformation, new HttpClientAdapter(() => octopusHttpClientFactory.HttpClientHandler));
                 
                 var client = new GitHubClient(connection);
-                if (string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(password))
+                if (string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(password?.Value))
                     return client;
 
                 // Username/Password authentication used
-                if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
+                if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password?.Value))
                 {
-                    client.Credentials = new Credentials(username, password);
+                    client.Credentials = new Credentials(username, password?.Value);
                 }
 
                 // Personal Access Token authentication used
-                if(string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
+                if(string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password?.Value))
                 {
-                    client.Credentials = new Credentials(password);
+                    client.Credentials = new Credentials(password?.Value);
                 }
 
                 return client;

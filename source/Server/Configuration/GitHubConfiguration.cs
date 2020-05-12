@@ -6,9 +6,8 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
     class GitHubConfiguration : ExtensionConfigurationDocument
     {
-        public GitHubConfiguration() : base("GitHub", "Octopus Deploy", "1.0")
+        public GitHubConfiguration() : base(GitHubConfigurationStore.SingletonId, "GitHub", "Octopus Deploy", "1.0")
         {
-            Id = GitHubConfigurationStore.SingletonId;
             BaseUrl = "https://github.com";
         }
 
@@ -20,8 +19,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
     class ReleaseNoteOptions
     {
         public string Username { get; set; }
-        [Encrypted]
-        public string Password { get; set; }
+        public SensitiveString Password { get; set; }
         public string ReleaseNotePrefix { get; set; }
     }
 }
