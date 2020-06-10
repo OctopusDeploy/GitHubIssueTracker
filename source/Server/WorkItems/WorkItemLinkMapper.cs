@@ -39,6 +39,9 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
             if (string.IsNullOrWhiteSpace(baseUrl))
                 return null;
 
+            if (buildInformation.VcsRoot.Contains(@"/_git/"))
+                return null;
+
             var releaseNotePrefix = store.GetReleaseNotePrefix();
             var workItemReferences = commentParser.ParseWorkItemReferences(buildInformation);
 
