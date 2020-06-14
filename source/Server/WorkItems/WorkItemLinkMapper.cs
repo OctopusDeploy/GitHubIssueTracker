@@ -39,6 +39,10 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
             if (string.IsNullOrWhiteSpace(baseUrl))
                 return null;
 
+            const string pathComponentIndicatingAzureDevOpsVcs = @"/_git/";
+            if (buildInformation.VcsRoot.Contains(pathComponentIndicatingAzureDevOpsVcs))
+                return null;
+
             var releaseNotePrefix = store.GetReleaseNotePrefix();
             var workItemReferences = commentParser.ParseWorkItemReferences(buildInformation);
 
