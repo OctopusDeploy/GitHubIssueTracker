@@ -18,7 +18,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
         [Description(GitHubBaseUrlDescription)]
         [Required]
         [Writeable]
-        public string BaseUrl { get; set; }
+        public string? BaseUrl { get; set; }
 
         [DisplayName("Release Note Options")]
         public ReleaseNoteOptionsResource ReleaseNoteOptions { get; set; } = new ReleaseNoteOptionsResource();
@@ -33,16 +33,16 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
         [DisplayName("Username")]
         [Description(UsernameDescription)]
         [Writeable]
-        public string Username { get; set; }
+        public string? Username { get; set; }
 
         [DisplayName("Password")]
         [Description(PasswordDescription)]
         [Writeable]
-        public SensitiveValue Password { get; set; }
+        public SensitiveValue? Password { get; set; }
 
         [DisplayName("Release Note Prefix")]
         [Description(ReleaseNotePrefixDescription)]
         [Writeable]
-        public string ReleaseNotePrefix { get; set; }
+        public string? ReleaseNotePrefix { get; set; }
     }
 }
