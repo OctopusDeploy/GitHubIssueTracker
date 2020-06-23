@@ -87,7 +87,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
                 }
             });
 
-            Assert.IsTrue(workItems.Succeeded);
+            Assert.IsTrue(workItems.WasSuccessful);
             Assert.AreEqual(1, workItems.Value.Length);
         }
 
@@ -117,7 +117,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
                 }
             });
 
-            Assert.IsTrue(workItems.Succeeded);
+            Assert.IsTrue(workItems.WasSuccessful);
             Assert.AreEqual("GitHub", workItems.Value.Single().Source);
         }
     }

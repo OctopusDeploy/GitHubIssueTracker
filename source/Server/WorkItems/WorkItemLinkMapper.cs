@@ -7,6 +7,7 @@ using Octopus.Server.Extensibility.Extensions.WorkItems;
 using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.Resources.IssueTrackers;
+using Octopus.Server.Extensibility.Results;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 {
@@ -30,23 +31,23 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
         public string CommentParser => GitHubConfigurationStore.CommentParser;
         public bool IsEnabled => store.GetIsEnabled();
 
-        public SuccessOrErrorResult<WorkItemLink[]> Map(OctopusBuildInformation buildInformation)
+        public ResultFromExtension<WorkItemLink[]> Map(OctopusBuildInformation buildInformation)
         {
             if (!IsEnabled)
-                return null;
+                return ResultFromExtension<WorkItemLink[]>.ExtensionDisabled();
 
             var baseUrl = store.GetBaseUrl();
             if (string.IsNullOrWhiteSpace(baseUrl))
-                return null;
+                return ResultFromExtension<WorkItemLink[]>.Failed("Base Url is not configured");
 
             const string pathComponentIndicatingAzureDevOpsVcs = @"/_git/";
             if (buildInformation.VcsRoot.Contains(pathComponentIndicatingAzureDevOpsVcs))
-                return null;
+                return ResultFromExtension<WorkItemLink[]>.Failed("VCS Root indicates this build information is Azure DevOps related");
 
             var releaseNotePrefix = store.GetReleaseNotePrefix();
             var workItemReferences = commentParser.ParseWorkItemReferences(buildInformation);
 
-            return workItemReferences.Select(wir => new WorkItemLink
+            return ResultFromExtension<WorkItemLink[]>.Success(workItemReferences.Select(wir => new WorkItemLink
                 {
                     Id = wir.IssueNumber,
                     Description = GetReleaseNote(buildInformation.VcsRoot, wir.IssueNumber, wir.LinkData, releaseNotePrefix),
@@ -54,7 +55,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
                     Source = GitHubConfigurationStore.CommentParser
                 })
                 .Distinct()
-                .ToArray();
+                .ToArray());
         }
 
         public string GetReleaseNote(string vcsRoot, string issueNumber, string linkData, string releaseNotePrefix)
@@ -77,7 +78,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
                 var releaseNote = issueComments?.LastOrDefault(c => releaseNoteRegex.IsMatch(c.Body))?.Body;
                 // Return (last, if multiple found) comment that matched release note prefix, or return issue title
                 return !string.IsNullOrWhiteSpace(releaseNote)
-                    ? releaseNoteRegex.Replace(releaseNote, "")?.Trim()
+                    ? releaseNoteRegex.Replace(releaseNote, "")?.Trim() ?? string.Empty
                     : issue.Title;
             }
             catch (Exception e)
