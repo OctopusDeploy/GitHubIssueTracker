@@ -4,9 +4,11 @@ using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using Octokit;
+using Octopus.Data;
 using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems;
+using Octopus.Server.Extensibility.Resources.IssueTrackers;
 using Commit = Octopus.Server.Extensibility.HostServices.Model.IssueTrackers.Commit;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
@@ -40,7 +42,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             var githubClient = Substitute.For<IGitHubClient>();
             var githubClientLazy = new Lazy<IGitHubClient>(() => githubClient);
             var workItemNumber = Convert.ToInt32(issueNumber);
-            
+
             githubClient.Issue.Get(Arg.Is(expectedOwner), Arg.Is(expectedRepo), Arg.Is(workItemNumber))
                 .Returns(new Issue("url", "htmlUrl", "commentUrl", "eventsUrl", workItemNumber, ItemState.Open, "Test title", "test body", null, null, new List<Octokit.Label>(), null, new List<Octokit.User>(), null, 1, null, null, DateTimeOffset.Now, null, workItemNumber, "node", false, null, null));
             githubClient.Issue.Comment.GetAllForIssue(Arg.Is(expectedOwner), Arg.Is(expectedRepo), Arg.Is(workItemNumber)).Returns(new []
@@ -70,7 +72,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             store.GetIsEnabled().Returns(true);
 
             var workItemNumber = 1234;
-            
+
             githubClient.Issue.Get(Arg.Is("UserX"), Arg.Is("RepoY"), Arg.Is(workItemNumber))
                 .Returns(new Issue("url", "htmlUrl", "commentUrl", "eventsUrl", workItemNumber, ItemState.Open, "Test title", "test body", null, null, new List<Octokit.Label>(), null, new List<Octokit.User>(), null, 0, null, null, DateTimeOffset.Now, null, workItemNumber, "node", false, null, null));
 
@@ -87,8 +89,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
                 }
             });
 
-            Assert.IsTrue(workItems.WasSuccessful);
-            Assert.AreEqual(1, workItems.Value.Length);
+            Assert.AreEqual(1, ((ISuccessResult<WorkItemLink[]>)workItems).Value.Length);
         }
 
         [Test]
@@ -101,7 +102,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             store.GetIsEnabled().Returns(true);
 
             var workItemNumber = 1234;
-            
+
             githubClient.Issue.Get(Arg.Is("UserX"), Arg.Is("RepoY"), Arg.Is(workItemNumber))
                 .Returns(new Issue("url", "htmlUrl", "commentUrl", "eventsUrl", workItemNumber, ItemState.Open, "Test title", "test body", null, null, new List<Octokit.Label>(), null, new List<Octokit.User>(), null, 0, null, null, DateTimeOffset.Now, null, workItemNumber, "node", false, null, null));
 
@@ -117,8 +118,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
                 }
             });
 
-            Assert.IsTrue(workItems.WasSuccessful);
-            Assert.AreEqual("GitHub", workItems.Value.Single().Source);
+            Assert.AreEqual("GitHub", ((ISuccessResult<WorkItemLink[]>)workItems).Value.Single().Source);
         }
     }
 }

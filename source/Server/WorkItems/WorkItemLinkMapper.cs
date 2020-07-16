@@ -31,7 +31,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
         public string CommentParser => GitHubConfigurationStore.CommentParser;
         public bool IsEnabled => store.GetIsEnabled();
 
-        public ResultFromExtension<WorkItemLink[]> Map(OctopusBuildInformation buildInformation)
+        public IResultFromExtension<WorkItemLink[]> Map(OctopusBuildInformation buildInformation)
         {
             if (!IsEnabled)
                 return ResultFromExtension<WorkItemLink[]>.ExtensionDisabled();
@@ -63,19 +63,19 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
         public string GetReleaseNote(string vcsRoot, string issueNumber, string linkData, string? releaseNotePrefix)
         {
             var result = GetGitHubOwnerAndRepo(vcsRoot, linkData);
-            if (result.WasFailure)
+            if (!(result is ISuccessResult<(string owner, string repo)> successResult))
                 return issueNumber;
-            
+
             try
             {
-                var issue = githubClient.Value.Issue.Get(result.Value.owner, result.Value.repo, int.Parse(issueNumber)).Result;
+                var issue = githubClient.Value.Issue.Get(successResult.Value.owner, successResult.Value.repo, int.Parse(issueNumber)).Result;
                 // No comments on issue, or no release note prefix has been specified, so return issue title
                 if (issue.Comments == 0 || string.IsNullOrWhiteSpace(releaseNotePrefix))
                     return issue.Title;
 
                 var releaseNoteRegex = new Regex($"^{releaseNotePrefix}", RegexOptions.Compiled | RegexOptions.IgnoreCase);
                 var issueComments = githubClient.Value.Issue.Comment
-                    .GetAllForIssue(result.Value.owner, result.Value.repo, int.Parse(issueNumber)).Result;
+                    .GetAllForIssue(successResult.Value.owner, successResult.Value.repo, int.Parse(issueNumber)).Result;
 
                 var releaseNote = issueComments?.LastOrDefault(c => releaseNoteRegex.IsMatch(c.Body))?.Body;
                 // Return (last, if multiple found) comment that matched release note prefix, or return issue title
@@ -116,14 +116,14 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 
             return baseToUse + "/" + string.Join("/", linkDataComponents);
         }
-        
-        Result<(string owner, string repo)> GetGitHubOwnerAndRepo(string gitHubUrl, string linkData)
+
+        IResult<(string owner, string repo)> GetGitHubOwnerAndRepo(string gitHubUrl, string linkData)
         {
-            Result<(string, string)> GetOwnerRepoFromVcsRoot(string vcsRoot)
+            IResult<(string, string)> GetOwnerRepoFromVcsRoot(string vcsRoot)
             {
                 var ownerRepoParts = ownerRepoRegex.Match(vcsRoot).Groups[1]?.Value.Split('/', '#');
-                return ownerRepoParts == null || ownerRepoParts.Count() < 2 
-                    ? Result<(string, string)>.Failed() 
+                return ownerRepoParts == null || ownerRepoParts.Count() < 2
+                    ? (IResult<(string owner, string repo)>)Result<(string, string)>.Failed("Incorrect number of owner repo parts")
                     : Result<(string, string)>.Success((ownerRepoParts[0], ownerRepoParts[1]));
             }
 
@@ -144,8 +144,8 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 
             var ownerRepoComponents = linkDataComponents[0].Split('/');
             if (string.IsNullOrWhiteSpace(ownerRepoComponents[0]) || string.IsNullOrWhiteSpace(ownerRepoComponents[1]))
-                return Result<(string owner, string repo)>.Failed();
-            
+                return Result<(string owner, string repo)>.Failed("Invalid repo owner components");
+
             return Result<(string owner, string repo)>.Success((ownerRepoComponents[0], ownerRepoComponents[1]));
         }
 
