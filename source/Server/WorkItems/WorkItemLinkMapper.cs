@@ -114,7 +114,19 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
                 linkDataComponents[0] = "issues";
             }
 
-            return baseToUse + "/" + string.Join("/", linkDataComponents);
+            return NormalizeBaseGitUrl(baseToUse) + "/" + string.Join("/", linkDataComponents);
+        }
+
+        static readonly Regex GitSshUrlRegex = new Regex("^git@(?<host>.*):", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static string NormalizeBaseGitUrl(string vcsRoot)
+        {
+            var match = GitSshUrlRegex.Match(vcsRoot);
+            if (match.Success)
+            {
+                vcsRoot = GitSshUrlRegex.Replace(vcsRoot, $"https://{match.Groups["host"]}/");
+            }
+
+            return vcsRoot;
         }
 
         IResult<(string owner, string repo)> GetGitHubOwnerAndRepo(string gitHubUrl, string linkData)
