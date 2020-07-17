@@ -1,5 +1,4 @@
-﻿using System;
-using Octopus.Server.Extensibility.Extensions.WorkItems;
+﻿using Octopus.Server.Extensibility.Extensions.WorkItems;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub
@@ -20,6 +19,6 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub
 
         public bool IsEnabled => configurationStore.GetIsEnabled();
 
-        public string BaseUrl => configurationStore.GetIsEnabled() ? configurationStore.GetBaseUrl() : null;
+        public string? BaseUrl => configurationStore.GetIsEnabled() ? configurationStore.GetBaseUrl() : null;
     }
 }

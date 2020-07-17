@@ -17,7 +17,6 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
         internal static WorkItemReference[] ParseReferences(string comment)
         {
             return Expression.Matches(comment)
-                .Cast<Match>()
                 .Select(m => new WorkItemReference
                 {
                     IssueNumber = m.Groups[2].Value,
@@ -28,8 +27,8 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 
         public class WorkItemReference
         {
-            public string IssueNumber { get; set; }
-            public string LinkData { get; set; }
+            public string IssueNumber { get; set; } = string.Empty;
+            public string LinkData { get; set; } = string.Empty;
         }
     }
 }

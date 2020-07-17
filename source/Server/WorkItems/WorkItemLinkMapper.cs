@@ -2,11 +2,12 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Octokit;
-using Octopus.Server.Extensibility.Extensions;
+using Octopus.Data;
 using Octopus.Server.Extensibility.Extensions.WorkItems;
 using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.Resources.IssueTrackers;
+using Octopus.Server.Extensibility.Results;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 {
@@ -30,23 +31,25 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
         public string CommentParser => GitHubConfigurationStore.CommentParser;
         public bool IsEnabled => store.GetIsEnabled();
 
-        public SuccessOrErrorResult<WorkItemLink[]> Map(OctopusBuildInformation buildInformation)
+        public IResultFromExtension<WorkItemLink[]> Map(OctopusBuildInformation buildInformation)
         {
             if (!IsEnabled)
-                return null;
+                return ResultFromExtension<WorkItemLink[]>.ExtensionDisabled();
 
             var baseUrl = store.GetBaseUrl();
             if (string.IsNullOrWhiteSpace(baseUrl))
-                return null;
+                return ResultFromExtension<WorkItemLink[]>.Failed("Base Url is not configured");
+            if (buildInformation.VcsRoot == null)
+                return ResultFromExtension<WorkItemLink[]>.Failed("No VCS root configured");
 
             const string pathComponentIndicatingAzureDevOpsVcs = @"/_git/";
             if (buildInformation.VcsRoot.Contains(pathComponentIndicatingAzureDevOpsVcs))
-                return null;
+                return ResultFromExtension<WorkItemLink[]>.Failed("VCS Root indicates this build information is Azure DevOps related");
 
             var releaseNotePrefix = store.GetReleaseNotePrefix();
             var workItemReferences = commentParser.ParseWorkItemReferences(buildInformation);
 
-            return workItemReferences.Select(wir => new WorkItemLink
+            return ResultFromExtension<WorkItemLink[]>.Success(workItemReferences.Select(wir => new WorkItemLink
                 {
                     Id = wir.IssueNumber,
                     Description = GetReleaseNote(buildInformation.VcsRoot, wir.IssueNumber, wir.LinkData, releaseNotePrefix),
@@ -54,33 +57,33 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
                     Source = GitHubConfigurationStore.CommentParser
                 })
                 .Distinct()
-                .ToArray();
+                .ToArray());
         }
 
-        public string GetReleaseNote(string vcsRoot, string issueNumber, string linkData, string releaseNotePrefix)
+        public string GetReleaseNote(string vcsRoot, string issueNumber, string linkData, string? releaseNotePrefix)
         {
-            var (success, owner, repo) = GetGitHubOwnerAndRepo(vcsRoot, linkData);
-            if (!success)
+            var result = GetGitHubOwnerAndRepo(vcsRoot, linkData);
+            if (!(result is ISuccessResult<(string owner, string repo)> successResult))
                 return issueNumber;
-            
+
             try
             {
-                var issue = githubClient.Value.Issue.Get(owner, repo, int.Parse(issueNumber)).Result;
+                var issue = githubClient.Value.Issue.Get(successResult.Value.owner, successResult.Value.repo, int.Parse(issueNumber)).Result;
                 // No comments on issue, or no release note prefix has been specified, so return issue title
                 if (issue.Comments == 0 || string.IsNullOrWhiteSpace(releaseNotePrefix))
                     return issue.Title;
 
                 var releaseNoteRegex = new Regex($"^{releaseNotePrefix}", RegexOptions.Compiled | RegexOptions.IgnoreCase);
                 var issueComments = githubClient.Value.Issue.Comment
-                    .GetAllForIssue(owner, repo, int.Parse(issueNumber)).Result;
+                    .GetAllForIssue(successResult.Value.owner, successResult.Value.repo, int.Parse(issueNumber)).Result;
 
                 var releaseNote = issueComments?.LastOrDefault(c => releaseNoteRegex.IsMatch(c.Body))?.Body;
                 // Return (last, if multiple found) comment that matched release note prefix, or return issue title
                 return !string.IsNullOrWhiteSpace(releaseNote)
-                    ? releaseNoteRegex.Replace(releaseNote, "")?.Trim()
+                    ? releaseNoteRegex.Replace(releaseNote, "")?.Trim() ?? string.Empty
                     : issue.Title;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return issueNumber;
             }
@@ -126,14 +129,14 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
             return vcsRoot;
         }
 
-        (bool success, string owner, string repo) GetGitHubOwnerAndRepo(string gitHubUrl, string linkData)
+        IResult<(string owner, string repo)> GetGitHubOwnerAndRepo(string gitHubUrl, string linkData)
         {
-            (bool, string, string) GetOwnerRepoFromVcsRoot(string vcsRoot)
+            IResult<(string, string)> GetOwnerRepoFromVcsRoot(string vcsRoot)
             {
                 var ownerRepoParts = ownerRepoRegex.Match(vcsRoot).Groups[1]?.Value.Split('/', '#');
-                return ownerRepoParts.Count() < 2 
-                    ? (false, null, null) 
-                    : (true, ownerRepoParts[0], ownerRepoParts[1]);
+                return ownerRepoParts == null || ownerRepoParts.Count() < 2
+                    ? (IResult<(string owner, string repo)>)Result<(string, string)>.Failed("Incorrect number of owner repo parts")
+                    : Result<(string, string)>.Success((ownerRepoParts[0], ownerRepoParts[1]));
             }
 
             if (string.IsNullOrWhiteSpace(linkData))
@@ -153,9 +156,9 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 
             var ownerRepoComponents = linkDataComponents[0].Split('/');
             if (string.IsNullOrWhiteSpace(ownerRepoComponents[0]) || string.IsNullOrWhiteSpace(ownerRepoComponents[1]))
-                return (false, null, null);
-            
-            return (true, ownerRepoComponents[0], ownerRepoComponents[1]);
+                return Result<(string owner, string repo)>.Failed("Invalid repo owner components");
+
+            return Result<(string owner, string repo)>.Success((ownerRepoComponents[0], ownerRepoComponents[1]));
         }
 
     }
