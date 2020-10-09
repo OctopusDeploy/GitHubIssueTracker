@@ -122,5 +122,30 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
 
             Assert.AreEqual("GitHub", ((ISuccessResult<WorkItemLink[]>)workItems).Value.Single().Source);
         }
+
+        [Test]
+        public void AzureDevOpsGitCommentsGetIgnored()
+        {
+            var store = Substitute.For<IGitHubConfigurationStore>();
+            var githubClient = Substitute.For<IGitHubClient>();
+            var githubClientLazy = new Lazy<IGitHubClient>(() => githubClient);
+            store.GetBaseUrl().Returns("https://github.com");
+            store.GetIsEnabled().Returns(true);
+
+            var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy, Substitute.For<ILog>());
+
+            var workItems = mapper.Map(new OctopusBuildInformation
+            {
+                VcsRoot = "https://something.com/_git/ProjectX",
+                VcsType = "Git",
+                Commits = new Commit[]
+                {
+                    new Commit { Id = "abcd", Comment = "This is a test commit message. Fixes #1234"}
+                }
+            });
+            var success = workItems as ISuccessResult<WorkItemLink[]>;
+            Assert.IsNotNull(success, "AzureDevOps VCS root should not be a failure");
+            Assert.IsEmpty(success.Value, "AzureDevOps VCS root should return an empty list of links");
+        }
     }
 }
