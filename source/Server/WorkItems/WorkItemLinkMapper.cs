@@ -49,7 +49,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
             const string pathComponentIndicatingAzureDevOpsVcs = @"/_git/";
             if (buildInformation.VcsRoot.Contains(pathComponentIndicatingAzureDevOpsVcs))
             {
-                log.WarnFormat("The VCS Root {0} indicates this build information is Azure DevOps related so GitHub comment references will be ignored");
+                log.WarnFormat("The VCS Root '{0}' indicates this build information is Azure DevOps related so GitHub comment references will be ignored", buildInformation.VcsRoot);
                 return ResultFromExtension<WorkItemLink[]>.Success(new WorkItemLink[0]);
             }
 

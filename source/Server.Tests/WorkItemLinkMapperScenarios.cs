@@ -132,7 +132,9 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             store.GetBaseUrl().Returns("https://github.com");
             store.GetIsEnabled().Returns(true);
 
-            var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy, Substitute.For<ILog>());
+            var log = Substitute.For<ILog>();
+
+            var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy, log);
 
             var workItems = mapper.Map(new OctopusBuildInformation
             {
@@ -146,6 +148,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             var success = workItems as ISuccessResult<WorkItemLink[]>;
             Assert.IsNotNull(success, "AzureDevOps VCS root should not be a failure");
             Assert.IsEmpty(success.Value, "AzureDevOps VCS root should return an empty list of links");
+            log.Received(1).WarnFormat("The VCS Root '{0}' indicates this build information is Azure DevOps related so GitHub comment references will be ignored", "https://something.com/_git/ProjectX");
         }
     }
 }
