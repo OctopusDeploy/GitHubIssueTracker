@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Octokit;
 using Octopus.Data;
+using Octopus.Diagnostics;
 using Octopus.Server.Extensibility.Extensions.WorkItems;
 using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
@@ -16,16 +17,19 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
         private readonly IGitHubConfigurationStore store;
         private readonly CommentParser commentParser;
         private readonly Lazy<IGitHubClient> githubClient;
+        private readonly ILog log;
         private readonly Regex ownerRepoRegex = new Regex("(?:https?://)?(?:[^?/\\s]+[?/])(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 
         public WorkItemLinkMapper(IGitHubConfigurationStore store,
             CommentParser commentParser,
-            Lazy<IGitHubClient> githubClient)
+            Lazy<IGitHubClient> githubClient,
+            ILog log)
         {
             this.store = store;
             this.commentParser = commentParser;
             this.githubClient = githubClient;
+            this.log = log;
         }
 
         public string CommentParser => GitHubConfigurationStore.CommentParser;
@@ -44,7 +48,10 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 
             const string pathComponentIndicatingAzureDevOpsVcs = @"/_git/";
             if (buildInformation.VcsRoot.Contains(pathComponentIndicatingAzureDevOpsVcs))
-                return ResultFromExtension<WorkItemLink[]>.Failed("VCS Root indicates this build information is Azure DevOps related");
+            {
+                log.WarnFormat("The VCS Root {0} indicates this build information is Azure DevOps related so GitHub comment references will be ignored");
+                return ResultFromExtension<WorkItemLink[]>.Success(new WorkItemLink[0]);
+            }
 
             var releaseNotePrefix = store.GetReleaseNotePrefix();
             var workItemReferences = commentParser.ParseWorkItemReferences(buildInformation);
