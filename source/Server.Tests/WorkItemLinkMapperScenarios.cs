@@ -5,6 +5,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Octokit;
 using Octopus.Data;
+using Octopus.Diagnostics;
 using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems;
@@ -50,7 +51,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
                 new IssueComment(0, null, null, null, releaseNoteComment, DateTimeOffset.Now, null, null, null)
             });
 
-            return new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy).GetReleaseNote(vcsRoot, issueNumber, linkData, releaseNotePrefix);
+            return new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy, Substitute.For<ILog>()).GetReleaseNote(vcsRoot, issueNumber, linkData, releaseNotePrefix);
         }
 
         [TestCase("https://github.com", "https://github.com/UserX/RepoY", "#1234", ExpectedResult = "https://github.com/UserX/RepoY/issues/1234")]
@@ -77,7 +78,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             githubClient.Issue.Get(Arg.Is("UserX"), Arg.Is("RepoY"), Arg.Is(workItemNumber))
                 .Returns(new Issue("url", "htmlUrl", "commentUrl", "eventsUrl", workItemNumber, ItemState.Open, "Test title", "test body", null, null, new List<Octokit.Label>(), null, new List<Octokit.User>(), null, 0, null, null, DateTimeOffset.Now, null, workItemNumber, "node", false, null, null));
 
-            var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy);
+            var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy, Substitute.For<ILog>());
 
             var workItems = mapper.Map(new OctopusBuildInformation
             {
@@ -107,7 +108,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             githubClient.Issue.Get(Arg.Is("UserX"), Arg.Is("RepoY"), Arg.Is(workItemNumber))
                 .Returns(new Issue("url", "htmlUrl", "commentUrl", "eventsUrl", workItemNumber, ItemState.Open, "Test title", "test body", null, null, new List<Octokit.Label>(), null, new List<Octokit.User>(), null, 0, null, null, DateTimeOffset.Now, null, workItemNumber, "node", false, null, null));
 
-            var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy);
+            var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy, Substitute.For<ILog>());
 
             var workItems = mapper.Map(new OctopusBuildInformation
             {
@@ -120,6 +121,34 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             });
 
             Assert.AreEqual("GitHub", ((ISuccessResult<WorkItemLink[]>)workItems).Value.Single().Source);
+        }
+
+        [Test]
+        public void AzureDevOpsGitCommentsGetIgnored()
+        {
+            var store = Substitute.For<IGitHubConfigurationStore>();
+            var githubClient = Substitute.For<IGitHubClient>();
+            var githubClientLazy = new Lazy<IGitHubClient>(() => githubClient);
+            store.GetBaseUrl().Returns("https://github.com");
+            store.GetIsEnabled().Returns(true);
+
+            var log = Substitute.For<ILog>();
+
+            var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy, log);
+
+            var workItems = mapper.Map(new OctopusBuildInformation
+            {
+                VcsRoot = "https://something.com/_git/ProjectX",
+                VcsType = "Git",
+                Commits = new Commit[]
+                {
+                    new Commit { Id = "abcd", Comment = "This is a test commit message. Fixes #1234"}
+                }
+            });
+            var success = workItems as ISuccessResult<WorkItemLink[]>;
+            Assert.IsNotNull(success, "AzureDevOps VCS root should not be a failure");
+            Assert.IsEmpty(success.Value, "AzureDevOps VCS root should return an empty list of links");
+            log.Received(1).WarnFormat("The VCS Root '{0}' indicates this build information is Azure DevOps related so GitHub comment references will be ignored", "https://something.com/_git/ProjectX");
         }
     }
 }
