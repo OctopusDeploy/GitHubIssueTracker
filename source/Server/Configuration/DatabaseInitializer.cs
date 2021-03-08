@@ -6,10 +6,10 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
     class DatabaseInitializer : ExecuteWhenDatabaseInitializes
     {
-        readonly ILog log;
+        readonly ISystemLog log;
         readonly IConfigurationStore configurationStore;
 
-        public DatabaseInitializer(ILog log, IConfigurationStore configurationStore)
+        public DatabaseInitializer(ISystemLog log, IConfigurationStore configurationStore)
         {
             this.log = log;
             this.configurationStore = configurationStore;

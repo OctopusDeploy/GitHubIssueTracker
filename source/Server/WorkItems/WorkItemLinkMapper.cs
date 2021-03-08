@@ -14,22 +14,21 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 {
     class WorkItemLinkMapper : IWorkItemLinkMapper
     {
+        private readonly ISystemLog log;
         private readonly IGitHubConfigurationStore store;
         private readonly CommentParser commentParser;
         private readonly Lazy<IGitHubClient> githubClient;
-        private readonly ILog log;
         private readonly Regex ownerRepoRegex = new Regex("(?:https?://)?(?:[^?/\\s]+[?/])(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-
-        public WorkItemLinkMapper(IGitHubConfigurationStore store,
+        public WorkItemLinkMapper(ISystemLog log,
+            IGitHubConfigurationStore store,
             CommentParser commentParser,
-            Lazy<IGitHubClient> githubClient,
-            ILog log)
+            Lazy<IGitHubClient> githubClient)
         {
+            this.log = log;
             this.store = store;
             this.commentParser = commentParser;
             this.githubClient = githubClient;
-            this.log = log;
         }
 
         public string CommentParser => GitHubConfigurationStore.CommentParser;

@@ -51,7 +51,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
                 new IssueComment(0, null, null, null, releaseNoteComment, DateTimeOffset.Now, null, null, null)
             });
 
-            return new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy, Substitute.For<ILog>()).GetReleaseNote(vcsRoot, issueNumber, linkData, releaseNotePrefix);
+            return new WorkItemLinkMapper(Substitute.For<ISystemLog>(), store, new CommentParser(), githubClientLazy).GetReleaseNote(vcsRoot, issueNumber, linkData, releaseNotePrefix);
         }
 
         [TestCase("https://github.com", "https://github.com/UserX/RepoY", "#1234", ExpectedResult = "https://github.com/UserX/RepoY/issues/1234")]
@@ -78,7 +78,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             githubClient.Issue.Get(Arg.Is("UserX"), Arg.Is("RepoY"), Arg.Is(workItemNumber))
                 .Returns(new Issue("url", "htmlUrl", "commentUrl", "eventsUrl", workItemNumber, ItemState.Open, "Test title", "test body", null, null, new List<Octokit.Label>(), null, new List<Octokit.User>(), null, 0, null, null, DateTimeOffset.Now, null, workItemNumber, "node", false, null, null));
 
-            var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy, Substitute.For<ILog>());
+            var mapper = new WorkItemLinkMapper(Substitute.For<ISystemLog>(), store, new CommentParser(), githubClientLazy);
 
             var workItems = mapper.Map(new OctopusBuildInformation
             {
@@ -108,7 +108,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             githubClient.Issue.Get(Arg.Is("UserX"), Arg.Is("RepoY"), Arg.Is(workItemNumber))
                 .Returns(new Issue("url", "htmlUrl", "commentUrl", "eventsUrl", workItemNumber, ItemState.Open, "Test title", "test body", null, null, new List<Octokit.Label>(), null, new List<Octokit.User>(), null, 0, null, null, DateTimeOffset.Now, null, workItemNumber, "node", false, null, null));
 
-            var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy, Substitute.For<ILog>());
+            var mapper = new WorkItemLinkMapper(Substitute.For<ISystemLog>(), store, new CommentParser(), githubClientLazy);
 
             var workItems = mapper.Map(new OctopusBuildInformation
             {
@@ -132,9 +132,9 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
             store.GetBaseUrl().Returns("https://github.com");
             store.GetIsEnabled().Returns(true);
 
-            var log = Substitute.For<ILog>();
+            var log = Substitute.For<ISystemLog>();
 
-            var mapper = new WorkItemLinkMapper(store, new CommentParser(), githubClientLazy, log);
+            var mapper = new WorkItemLinkMapper(log, store, new CommentParser(), githubClientLazy);
 
             var workItems = mapper.Map(new OctopusBuildInformation
             {
