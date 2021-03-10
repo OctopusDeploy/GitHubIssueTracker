@@ -7,14 +7,14 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
     class GitHubConfigureCommands : IContributeToConfigureCommand
     {
-        readonly ISystemLog log;
+        readonly ISystemLog systemLog;
         readonly Lazy<IGitHubConfigurationStore> gitHubConfiguration;
 
         public GitHubConfigureCommands(
-            ISystemLog log,
+            ISystemLog systemLog,
             Lazy<IGitHubConfigurationStore> gitHubConfiguration)
         {
-            this.log = log;
+            this.systemLog = systemLog;
             this.gitHubConfiguration = gitHubConfiguration;
         }
 
@@ -24,12 +24,12 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
             {
                 var isEnabled = bool.Parse(v);
                 gitHubConfiguration.Value.SetIsEnabled(isEnabled);
-                log.Info($"GitHub Issue Tracker integration IsEnabled set to: {isEnabled}");
+                systemLog.Info($"GitHub Issue Tracker integration IsEnabled set to: {isEnabled}");
             });
             yield return new ConfigureCommandOption("GitHubBaseUrl=", GitHubConfigurationResource.GitHubBaseUrlDescription, v =>
             {
                 gitHubConfiguration.Value.SetBaseUrl(v);
-                log.Info($"GitHub Issue Tracker integration base Url set to: {v}");
+                systemLog.Info($"GitHub Issue Tracker integration base Url set to: {v}");
             });
         }
     }

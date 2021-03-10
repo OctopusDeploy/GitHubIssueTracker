@@ -6,12 +6,12 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
     class DatabaseInitializer : ExecuteWhenDatabaseInitializes
     {
-        readonly ISystemLog log;
+        readonly ISystemLog systemLog;
         readonly IConfigurationStore configurationStore;
 
-        public DatabaseInitializer(ISystemLog log, IConfigurationStore configurationStore)
+        public DatabaseInitializer(ISystemLog systemLog, IConfigurationStore configurationStore)
         {
-            this.log = log;
+            this.systemLog = systemLog;
             this.configurationStore = configurationStore;
         }
 
@@ -21,7 +21,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
             if (doc != null)
                 return;
 
-            log.Info("Initializing GitHub integration settings");
+            systemLog.Info("Initializing GitHub integration settings");
             doc = new GitHubConfiguration();
             configurationStore.Create(doc);
         }
