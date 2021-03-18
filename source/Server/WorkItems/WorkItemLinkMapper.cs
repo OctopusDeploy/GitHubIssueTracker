@@ -14,22 +14,21 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 {
     class WorkItemLinkMapper : IWorkItemLinkMapper
     {
+        private readonly ISystemLog systemLog;
         private readonly IGitHubConfigurationStore store;
         private readonly CommentParser commentParser;
         private readonly Lazy<IGitHubClient> githubClient;
-        private readonly ILog log;
         private readonly Regex ownerRepoRegex = new Regex("(?:https?://)?(?:[^?/\\s]+[?/])(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-
-        public WorkItemLinkMapper(IGitHubConfigurationStore store,
+        public WorkItemLinkMapper(ISystemLog systemLog,
+            IGitHubConfigurationStore store,
             CommentParser commentParser,
-            Lazy<IGitHubClient> githubClient,
-            ILog log)
+            Lazy<IGitHubClient> githubClient)
         {
+            this.systemLog = systemLog;
             this.store = store;
             this.commentParser = commentParser;
             this.githubClient = githubClient;
-            this.log = log;
         }
 
         public string CommentParser => GitHubConfigurationStore.CommentParser;
@@ -49,7 +48,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
             const string pathComponentIndicatingAzureDevOpsVcs = @"/_git/";
             if (buildInformation.VcsRoot.Contains(pathComponentIndicatingAzureDevOpsVcs))
             {
-                log.WarnFormat("The VCS Root '{0}' indicates this build information is Azure DevOps related so GitHub comment references will be ignored", buildInformation.VcsRoot);
+                systemLog.WarnFormat("The VCS Root '{0}' indicates this build information is Azure DevOps related so GitHub comment references will be ignored", buildInformation.VcsRoot);
                 return ResultFromExtension<WorkItemLink[]>.Success(new WorkItemLink[0]);
             }
 

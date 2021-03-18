@@ -7,15 +7,15 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
     class GitHubConfigureCommands : IContributeToConfigureCommand
     {
-        readonly ILog log;
-        readonly Lazy<IGitHubConfigurationStore> GitHubConfiguration;
+        readonly ISystemLog systemLog;
+        readonly Lazy<IGitHubConfigurationStore> gitHubConfiguration;
 
         public GitHubConfigureCommands(
-            ILog log,
+            ISystemLog systemLog,
             Lazy<IGitHubConfigurationStore> gitHubConfiguration)
         {
-            this.log = log;
-            this.GitHubConfiguration = gitHubConfiguration;
+            this.systemLog = systemLog;
+            this.gitHubConfiguration = gitHubConfiguration;
         }
 
         public IEnumerable<ConfigureCommandOption> GetOptions()
@@ -23,13 +23,13 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
             yield return new ConfigureCommandOption("GitHubIsEnabled=", "Set whether GitHub issue tracker integration is enabled.", v =>
             {
                 var isEnabled = bool.Parse(v);
-                GitHubConfiguration.Value.SetIsEnabled(isEnabled);
-                log.Info($"GitHub Issue Tracker integration IsEnabled set to: {isEnabled}");
+                gitHubConfiguration.Value.SetIsEnabled(isEnabled);
+                systemLog.Info($"GitHub Issue Tracker integration IsEnabled set to: {isEnabled}");
             });
             yield return new ConfigureCommandOption("GitHubBaseUrl=", GitHubConfigurationResource.GitHubBaseUrlDescription, v =>
             {
-                GitHubConfiguration.Value.SetBaseUrl(v);
-                log.Info($"GitHub Issue Tracker integration base Url set to: {v}");
+                gitHubConfiguration.Value.SetBaseUrl(v);
+                systemLog.Info($"GitHub Issue Tracker integration base Url set to: {v}");
             });
         }
     }
