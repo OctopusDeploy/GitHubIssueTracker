@@ -5,10 +5,10 @@ using Octokit;
 using Octopus.Data;
 using Octopus.Diagnostics;
 using Octopus.Server.Extensibility.Extensions.WorkItems;
-using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
-using Octopus.Server.Extensibility.Resources.IssueTrackers;
 using Octopus.Server.Extensibility.Results;
+using Octopus.Server.MessageContracts.BuildInformation;
+using Octopus.Server.MessageContracts.IssueTrackers;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 {
