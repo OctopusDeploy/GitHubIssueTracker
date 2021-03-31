@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using Octopus.Data.Resources;
-using Octopus.Data.Resources.Attributes;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
+using Octopus.Server.MessageContracts;
+using Octopus.Server.MessageContracts.Attributes;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {

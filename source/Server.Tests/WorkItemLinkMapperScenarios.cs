@@ -8,9 +8,9 @@ using Octopus.Data;
 using Octopus.Diagnostics;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems;
-using Octopus.Server.MessageContracts.BuildInformation;
-using Octopus.Server.MessageContracts.IssueTrackers;
-using Commit = Octopus.Server.MessageContracts.BuildInformation.Commit;
+using Octopus.Server.MessageContracts.Features.BuildInformation;
+using Octopus.Server.MessageContracts.Features.IssueTrackers;
+using Commit = Octopus.Server.MessageContracts.Features.BuildInformation.Commit;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
 {

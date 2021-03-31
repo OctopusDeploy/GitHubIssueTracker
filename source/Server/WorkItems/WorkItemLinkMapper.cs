@@ -7,8 +7,8 @@ using Octopus.Diagnostics;
 using Octopus.Server.Extensibility.Extensions.WorkItems;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.Results;
-using Octopus.Server.MessageContracts.BuildInformation;
-using Octopus.Server.MessageContracts.IssueTrackers;
+using Octopus.Server.MessageContracts.Features.BuildInformation;
+using Octopus.Server.MessageContracts.Features.IssueTrackers;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems
 {
