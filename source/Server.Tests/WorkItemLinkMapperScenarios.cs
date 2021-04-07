@@ -6,11 +6,11 @@ using NUnit.Framework;
 using Octokit;
 using Octopus.Data;
 using Octopus.Diagnostics;
-using Octopus.Server.Extensibility.HostServices.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems;
-using Octopus.Server.Extensibility.Resources.IssueTrackers;
-using Commit = Octopus.Server.Extensibility.HostServices.Model.IssueTrackers.Commit;
+using Octopus.Server.MessageContracts.Features.BuildInformation;
+using Octopus.Server.MessageContracts.Features.IssueTrackers;
+using Commit = Octopus.Server.MessageContracts.Features.BuildInformation.Commit;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
 {
