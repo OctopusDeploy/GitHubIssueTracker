@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Octokit;
@@ -10,6 +12,7 @@ using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems;
 using Octopus.Server.MessageContracts.Features.BuildInformation;
 using Octopus.Server.MessageContracts.Features.IssueTrackers;
+using Octopus.Server.MessageContracts.Features.Spaces;
 using Commit = Octopus.Server.MessageContracts.Features.BuildInformation.Commit;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
@@ -65,7 +68,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
         }
 
         [Test]
-        public void DuplicatesGetIgnored()
+        public async Task DuplicatesGetIgnored()
         {
             var store = Substitute.For<IGitHubConfigurationStore>();
             var githubClient = Substitute.For<IGitHubClient>();
@@ -80,7 +83,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
 
             var mapper = new WorkItemLinkMapper(Substitute.For<ISystemLog>(), store, new CommentParser(), githubClientLazy);
 
-            var workItems = mapper.Map(new OctopusBuildInformation
+            var workItems = await mapper.Map("Space-1".ToSpaceId(), new OctopusBuildInformation
             {
                 VcsRoot = "https://github.com/UserX/RepoY",
                 VcsType = "Git",
@@ -89,13 +92,13 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
                     new Commit { Id = "abcd", Comment = "This is a test commit message. Fixes #1234"},
                     new Commit { Id = "defg", Comment = "This is a test commit message with duplicates. Fixes #1234"}
                 }
-            });
+            }, CancellationToken.None);
 
             Assert.AreEqual(1, ((ISuccessResult<WorkItemLink[]>)workItems).Value.Length);
         }
 
         [Test]
-        public void SourceGetsSet()
+        public async Task SourceGetsSet()
         {
             var store = Substitute.For<IGitHubConfigurationStore>();
             var githubClient = Substitute.For<IGitHubClient>();
@@ -110,7 +113,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
 
             var mapper = new WorkItemLinkMapper(Substitute.For<ISystemLog>(), store, new CommentParser(), githubClientLazy);
 
-            var workItems = mapper.Map(new OctopusBuildInformation
+            var workItems = await mapper.Map("Space-1".ToSpaceId(), new OctopusBuildInformation
             {
                 VcsRoot = "https://github.com/UserX/RepoY",
                 VcsType = "Git",
@@ -118,13 +121,13 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
                 {
                     new Commit { Id = "abcd", Comment = "This is a test commit message. Fixes #1234"}
                 }
-            });
+            }, CancellationToken.None);
 
             Assert.AreEqual("GitHub", ((ISuccessResult<WorkItemLink[]>)workItems).Value.Single().Source);
         }
 
         [Test]
-        public void AzureDevOpsGitCommentsGetIgnored()
+        public async Task AzureDevOpsGitCommentsGetIgnored()
         {
             var store = Substitute.For<IGitHubConfigurationStore>();
             var githubClient = Substitute.For<IGitHubClient>();
@@ -136,7 +139,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
 
             var mapper = new WorkItemLinkMapper(log, store, new CommentParser(), githubClientLazy);
 
-            var workItems = mapper.Map(new OctopusBuildInformation
+            var workItems = await mapper.Map("Space-1".ToSpaceId(), new OctopusBuildInformation
             {
                 VcsRoot = "https://something.com/_git/ProjectX",
                 VcsType = "Git",
@@ -144,7 +147,7 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
                 {
                     new Commit { Id = "abcd", Comment = "This is a test commit message. Fixes #1234"}
                 }
-            });
+            }, CancellationToken.None);
             var success = workItems as ISuccessResult<WorkItemLink[]>;
             Assert.IsNotNull(success, "AzureDevOps VCS root should not be a failure");
             Assert.IsEmpty(success!.Value, "AzureDevOps VCS root should return an empty list of links");
