@@ -47,7 +47,7 @@ jobs:
       - name: GitHub Tag 🏷
         id: github-tag
         uses: mathieudutour/github-tag-action@v5.6
-        if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]' && github.event_name != 'schedule' && github.ref == 'refs/heads/main'
+        if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]' && github.event_name != 'schedule' && steps.build.outputs.prerelease_tag == ''
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: false

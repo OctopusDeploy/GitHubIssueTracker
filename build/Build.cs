@@ -82,8 +82,9 @@ class Build : NukeBuild
         {
             Logger.Info("Packing GitHub Issue Tracker v{0}", OctoVersionInfo.FullSemVer);
             
-            // This is done to pass the version to github actions
+            // This is done to pass the data to github actions
             Console.Out.WriteLine($"::set-output name=semver::{OctoVersionInfo.FullSemVer}");
+            Console.Out.WriteLine($"::set-output name=prerelease_tag::{OctoVersionInfo.PreReleaseTagWithDash}");
 
             DotNetPack(_ => _
                 .SetProject(Solution)
