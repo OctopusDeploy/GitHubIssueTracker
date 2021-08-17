@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Nuke.Common;
 using Nuke.Common.CI;
@@ -37,7 +38,7 @@ class Build : NukeBuild
     Target CalculateVersion => _ => _
         .Executes(() =>
         {
-            //all the magic happens inside `[NukeOctoVersion]` above. we just need a target for TeamCity to call
+            //all the magic happens inside `[OctoVersion]` above. we just need a target for TeamCity to call
         });
 
     Target Restore => _ => _
@@ -80,6 +81,10 @@ class Build : NukeBuild
         .Executes(() =>
         {
             Logger.Info("Packing GitHub Issue Tracker v{0}", OctoVersionInfo.FullSemVer);
+            
+            // This is done to pass the data to github actions
+            Console.Out.WriteLine($"::set-output name=semver::{OctoVersionInfo.FullSemVer}");
+            Console.Out.WriteLine($"::set-output name=prerelease_tag::{OctoVersionInfo.PreReleaseTagWithDash}");
 
             DotNetPack(_ => _
                 .SetProject(Solution)
