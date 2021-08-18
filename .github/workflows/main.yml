@@ -46,10 +46,14 @@ jobs:
         
       - name: GitHub Tag 🏷
         id: github-tag
-        uses: mathieudutour/github-tag-action@v5.6
+        uses: actions/github-script@v3
         if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]' && github.event_name != 'schedule' && steps.build.outputs.prerelease_tag == ''
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: false
-          custom_tag: ${{ steps.build.outputs.semver }}
-          tag_prefix: ''
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/${{ steps.build.outputs.semver }}",
+              sha: context.sha
+            })
