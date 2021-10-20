@@ -1,20 +1,22 @@
-﻿using Octopus.Data.Model;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Octopus.Data.Model;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
-    interface IGitHubConfigurationStore : IExtensionConfigurationStore<GitHubConfiguration>
+    interface IGitHubConfigurationStore : IExtensionConfigurationStoreAsync<GitHubConfiguration>
     {
-        string? GetBaseUrl();
-        void SetBaseUrl(string? baseUrl);
+        Task<string?> GetBaseUrl(CancellationToken cancellationToken);
+        Task SetBaseUrl(string? baseUrl, CancellationToken cancellationToken);
 
-        string? GetUsername();
-        void SetUsername(string? username);
+        Task<string?> GetUsername(CancellationToken cancellationToken);
+        Task SetUsername(string? username, CancellationToken cancellationToken);
 
-        SensitiveString? GetPassword();
-        void SetPassword(SensitiveString? password);
+        Task<SensitiveString?> GetPassword(CancellationToken cancellationToken);
+        Task SetPassword(SensitiveString? password, CancellationToken cancellationToken);
 
-        string? GetReleaseNotePrefix();
-        void SetReleaseNotePrefix(string? releaseNotePrefix);
+        Task<string?> GetReleaseNotePrefix(CancellationToken cancellationToken);
+        Task SetReleaseNotePrefix(string? releaseNotePrefix, CancellationToken cancellationToken);
     }
 }

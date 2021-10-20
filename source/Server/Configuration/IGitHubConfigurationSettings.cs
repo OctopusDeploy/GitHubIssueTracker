@@ -2,6 +2,6 @@
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
-    interface IGitHubConfigurationSettings : IHasConfigurationSettings
+    interface IGitHubConfigurationSettings : IHasConfigurationSettingsAsync
     { }
 }

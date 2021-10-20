@@ -1,10 +1,7 @@
 ﻿using Autofac;
-using Octokit;
-using Octokit.Internal;
 using Octopus.Server.Extensibility.Extensions;
 using Octopus.Server.Extensibility.Extensions.Infrastructure;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
-using Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api;
 using Octopus.Server.Extensibility.Extensions.Mappings;
 using Octopus.Server.Extensibility.Extensions.WorkItems;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration;
@@ -29,8 +26,8 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub
 
             builder.RegisterType<GitHubConfigurationSettings>()
                 .As<IGitHubConfigurationSettings>()
-                .As<IHasConfigurationSettings>()
-                .As<IHasConfigurationSettingsResource>()
+                .As<IHasConfigurationSettingsAsync>()
+                .As<IHasConfigurationSettingsResourceAsync>()
                 .As<IContributeMappings>()
                 .InstancePerLifetimeScope();
 
@@ -45,41 +42,6 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub
             builder.RegisterType<CommentParser>().AsSelf().InstancePerDependency();
 
             builder.RegisterType<WorkItemLinkMapper>().As<IWorkItemLinkMapper>().InstancePerDependency();
-
-            builder.Register(c =>
-            {
-                var productHeaderValue = "octopus-github-issue-tracker";
-                var store = c.Resolve<IGitHubConfigurationStore>();
-                var username = store.GetUsername();
-                var password = store.GetPassword();
-
-                if (!store.GetIsEnabled())
-                    return null;
-
-
-                var productInformation = new ProductHeaderValue(productHeaderValue);
-                var octopusHttpClientFactory = c.Resolve<IOctopusHttpClientFactory>();
-                var connection = new Connection(productInformation, new HttpClientAdapter(() => octopusHttpClientFactory.HttpClientHandler));
-                
-                var client = new GitHubClient(connection);
-                if (string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(password?.Value))
-                    return client;
-
-                // Username/Password authentication used
-                if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password?.Value))
-                {
-                    client.Credentials = new Credentials(username, password?.Value);
-                }
-
-                // Personal Access Token authentication used
-                if(string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password?.Value))
-                {
-                    client.Credentials = new Credentials(password?.Value);
-                }
-
-                return client;
-            }).As<IGitHubClient>()
-            .InstancePerDependency();
         }
     }
 }

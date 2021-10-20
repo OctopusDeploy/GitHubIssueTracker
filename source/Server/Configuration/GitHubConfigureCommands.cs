@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Octopus.Diagnostics;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
 
@@ -23,12 +24,12 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
             yield return new ConfigureCommandOption("GitHubIsEnabled=", "Set whether GitHub issue tracker integration is enabled.", v =>
             {
                 var isEnabled = bool.Parse(v);
-                gitHubConfiguration.Value.SetIsEnabled(isEnabled);
+                gitHubConfiguration.Value.SetIsEnabled(isEnabled, CancellationToken.None);
                 systemLog.Info($"GitHub Issue Tracker integration IsEnabled set to: {isEnabled}");
             });
             yield return new ConfigureCommandOption("GitHubBaseUrl=", GitHubConfigurationResource.GitHubBaseUrlDescription, v =>
             {
-                gitHubConfiguration.Value.SetBaseUrl(v);
+                gitHubConfiguration.Value.SetBaseUrl(v, CancellationToken.None);
                 systemLog.Info($"GitHub Issue Tracker integration base Url set to: {v}");
             });
         }

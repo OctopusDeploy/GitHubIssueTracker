@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using Octopus.Data.Model;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
 using Octopus.Server.Extensibility.HostServices.Mapping;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
-    class GitHubConfigurationSettings : ExtensionConfigurationSettings<GitHubConfiguration, GitHubConfigurationResource, IGitHubConfigurationStore>, IGitHubConfigurationSettings
+    class GitHubConfigurationSettings : ExtensionConfigurationSettingsAsync<GitHubConfiguration, GitHubConfigurationResource, IGitHubConfigurationStore>, IGitHubConfigurationSettings
     {
         public GitHubConfigurationSettings(IGitHubConfigurationStore configurationDocumentStore) : base(configurationDocumentStore)
         {
@@ -17,15 +19,19 @@ namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 
         public override string Description => "GitHub Issue Tracker settings";
 
-        public override IEnumerable<IConfigurationValue> GetConfigurationValues()
+        public override async IAsyncEnumerable<IConfigurationValue> GetConfigurationValues([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var isEnabled = ConfigurationDocumentStore.GetIsEnabled();
+            var isEnabled = await ConfigurationDocumentStore.GetIsEnabled(cancellationToken);
 
             yield return new ConfigurationValue<bool>("Octopus.IssueTracker.GitHubIssueTracker", isEnabled, isEnabled, "Is Enabled");
-            yield return new ConfigurationValue<string?>("Octopus.IssueTracker.GitHubBaseUrl", ConfigurationDocumentStore.GetBaseUrl(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetBaseUrl()), "GitHub Base Url");
-            yield return new ConfigurationValue<string?>("Octopus.IssueTracker.GitHubUsername", ConfigurationDocumentStore.GetUsername(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetUsername()), "GitHub Username");
-            yield return new ConfigurationValue<SensitiveString?>("Octopus.IssueTracker.GitHubPassword", ConfigurationDocumentStore.GetPassword(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetPassword()?.Value), "GitHub Password");
-            yield return new ConfigurationValue<string?>("Octopus.IssueTracker.GitHubReleaseNotePrefix", ConfigurationDocumentStore.GetReleaseNotePrefix(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetReleaseNotePrefix()), "GitHub Release Note Prefix");
+            var baseUrl = await ConfigurationDocumentStore.GetBaseUrl(cancellationToken);
+            yield return new ConfigurationValue<string?>("Octopus.IssueTracker.GitHubBaseUrl", baseUrl, isEnabled && !string.IsNullOrWhiteSpace(baseUrl), "GitHub Base Url");
+            var username = await ConfigurationDocumentStore.GetUsername(cancellationToken);
+            yield return new ConfigurationValue<string?>("Octopus.IssueTracker.GitHubUsername", username, isEnabled && !string.IsNullOrWhiteSpace(username), "GitHub Username");
+            var password = await ConfigurationDocumentStore.GetPassword(cancellationToken);
+            yield return new ConfigurationValue<SensitiveString?>("Octopus.IssueTracker.GitHubPassword", password, isEnabled && !string.IsNullOrWhiteSpace(password?.Value), "GitHub Password");
+            var releaseNotePrefix = await ConfigurationDocumentStore.GetReleaseNotePrefix(cancellationToken);
+            yield return new ConfigurationValue<string?>("Octopus.IssueTracker.GitHubReleaseNotePrefix", releaseNotePrefix, isEnabled && !string.IsNullOrWhiteSpace(releaseNotePrefix), "GitHub Release Note Prefix");
         }
 
         public override void BuildMappings(IResourceMappingsBuilder builder)

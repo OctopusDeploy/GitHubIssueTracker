@@ -1,58 +1,59 @@
-﻿using Octopus.Data.Model;
-using Octopus.Data.Storage.Configuration;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Octopus.Data.Model;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Configuration
 {
-    class GitHubConfigurationStore : ExtensionConfigurationStore<GitHubConfiguration>, IGitHubConfigurationStore
+    class GitHubConfigurationStore : ExtensionConfigurationStoreAsync<GitHubConfiguration>, IGitHubConfigurationStore
     {
         public static string CommentParser = "GitHub";
         public static string SingletonId = "issuetracker-github";
-        
-        public GitHubConfigurationStore(IConfigurationStore configurationStore) : base(configurationStore)
+
+        public GitHubConfigurationStore(IConfigurationStoreAsync configurationStore) : base(configurationStore)
         {
         }
 
         public override string Id => SingletonId;
 
-        public string? GetBaseUrl()
+        public async Task<string?> GetBaseUrl(CancellationToken cancellationToken)
         {
-            return GetProperty(doc => doc.BaseUrl?.Trim('/'));
+            return await GetProperty(doc => doc.BaseUrl?.Trim('/'), cancellationToken);
         }
 
-        public void SetBaseUrl(string? baseUrl)
+        public async Task SetBaseUrl(string? baseUrl, CancellationToken cancellationToken)
         {
-            SetProperty(doc => doc.BaseUrl = baseUrl?.Trim('/'));
+            await SetProperty(doc => doc.BaseUrl = baseUrl?.Trim('/'), cancellationToken);
         }
 
-        public string? GetUsername()
+        public async Task<string?> GetUsername(CancellationToken cancellationToken)
         {
-            return GetProperty(doc => doc.ReleaseNoteOptions.Username);
+            return await GetProperty(doc => doc.ReleaseNoteOptions.Username, cancellationToken);
         }
 
-        public void SetUsername(string? username)
+        public async Task SetUsername(string? username, CancellationToken cancellationToken)
         {
-            SetProperty(doc => doc.ReleaseNoteOptions.Username = username);
+            await SetProperty(doc => doc.ReleaseNoteOptions.Username = username, cancellationToken);
         }
 
-        public SensitiveString? GetPassword()
+        public async Task<SensitiveString?> GetPassword(CancellationToken cancellationToken)
         {
-            return GetProperty(doc => doc.ReleaseNoteOptions.Password);
+            return await GetProperty(doc => doc.ReleaseNoteOptions.Password, cancellationToken);
         }
 
-        public void SetPassword(SensitiveString? password)
+        public async Task SetPassword(SensitiveString? password, CancellationToken cancellationToken)
         {
-            SetProperty(doc => doc.ReleaseNoteOptions.Password = password);
+            await SetProperty(doc => doc.ReleaseNoteOptions.Password = password, cancellationToken);
         }
 
-        public string? GetReleaseNotePrefix()
+        public async Task<string?> GetReleaseNotePrefix(CancellationToken cancellationToken)
         {
-            return GetProperty(doc => doc.ReleaseNoteOptions.ReleaseNotePrefix);
+            return await GetProperty(doc => doc.ReleaseNoteOptions.ReleaseNotePrefix, cancellationToken);
         }
 
-        public void SetReleaseNotePrefix(string? releaseNotePrefix)
+        public async Task SetReleaseNotePrefix(string? releaseNotePrefix, CancellationToken cancellationToken)
         {
-            SetProperty(doc => doc.ReleaseNoteOptions.ReleaseNotePrefix = releaseNotePrefix);
+            await SetProperty(doc => doc.ReleaseNoteOptions.ReleaseNotePrefix = releaseNotePrefix, cancellationToken);
         }
     }
 }
