@@ -18,6 +18,9 @@
     <iconUrl>https://i.octopusdeploy.com/resources/Avatar3_360.png</iconUrl>
     <tags>automation deployment</tags>
     <developmentDependency>true</developmentDependency>
+    <dependencies>
+      <dependency id="Octokit" version="0.32.0" />
+    </dependencies>
   </metadata>
   <files>
     <file src="..\source\Server\bin\Release\net5.0\*.dll" target="tools" />
