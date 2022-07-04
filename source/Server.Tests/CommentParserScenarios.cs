@@ -1,7 +1,7 @@
 using System.Linq;
 using NUnit.Framework;
+using Octopus.Server.Extensibility.Extensions.Model.BuildInformation;
 using Octopus.Server.Extensibility.IssueTracker.GitHub.WorkItems;
-using Octopus.Server.MessageContracts.Features.BuildInformation;
 
 namespace Octopus.Server.Extensibility.IssueTracker.GitHub.Tests
 {
